@@ -2,7 +2,7 @@ import { Outlet } from 'react-router';
 
 const AppLayout = () => {
   return (
-    <div>
+    <div className=''>
       <Outlet />
     </div>
   );
