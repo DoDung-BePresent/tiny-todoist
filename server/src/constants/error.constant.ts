@@ -45,29 +45,3 @@ export const ERROR_CODE_ENUM = {
 export type ErrorCodeEnumType =
   (typeof ERROR_CODE_ENUM)[keyof typeof ERROR_CODE_ENUM];
 
-export const ERROR_MESSAGES = {
-  // Authentication
-  INVALID_CREDENTIALS: 'Invalid email or password',
-  TOKEN_EXPIRED: 'Token has expired',
-  TOKEN_INVALID: 'Invalid token',
-  UNAUTHORIZED_ACCESS: 'Unauthorized access',
-  INSUFFICIENT_PERMISSIONS: 'Insufficient permissions',
-
-  // Validation
-  VALIDATION_ERROR: 'Validation failed',
-  REQUIRED_FIELD: 'This field is required',
-  INVALID_EMAIL: 'Invalid email format',
-  INVALID_PASSWORD: 'Password must be at least 8 characters',
-
-  // Resources
-  USER_NOT_FOUND: 'User not found',
-  USER_ALREADY_EXISTS: 'User already exists',
-  WORKSPACE_NOT_FOUND: 'Workspace not found',
-  PROJECT_NOT_FOUND: 'Project not found',
-  TASK_NOT_FOUND: 'Task not found',
-
-  // Generic
-  INTERNAL_ERROR: 'Internal server error',
-  BAD_REQUEST: 'Bad request',
-  RESOURCE_NOT_FOUND: 'Resource not found',
-} as const;

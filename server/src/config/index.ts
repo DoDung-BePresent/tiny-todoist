@@ -13,8 +13,10 @@ dotenv.config();
 const config = {
   PORT: process.env.PORT || 3000,
   NODE_ENV: process.env.NODE_ENV,
+  LOG_QUERIES: process.env.LOG_QUERIES || 'false',
   WHITELIST_ORIGINS: ['example@gmail.com'],
-  MONGO_URI: process.env.MONGO_URI,
+  DATABASE_URL: process.env.DATABASE_URL,
+  DIRECT_URL: process.env.DIRECT_URL,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
