@@ -1,47 +1,57 @@
-import { Server } from "http";
+/**
+ * Node modules
+ */
+import { Server } from 'http';
 
-import app from "./app";
+/**
+ * Custom modules
+ */
+import config from '@/config';
+import logger from '@/lib/logger';
 
-const PORT = process.env.PORT || 5000;
+/**
+ * App
+ */
+import app from './app';
 
-const server: Server = app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+const server: Server = app.listen(config.PORT, () => {
+  logger.info(`Server is running at http://localhost:${config.PORT}`);
 });
 
 // Graceful shutdown
 const gracefulShutdown = (signal: string) => {
-  console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
+  logger.warn(`Received ${signal}. Starting graceful shutdown...`);
 
   server.close((err) => {
     if (err) {
-      console.error("Error during server shutdown:", err);
+      logger.error('Error during server shutdown:', err);
       process.exit(1);
     }
 
-    console.log("Server closed successfully");
+    logger.info('Server closed successfully');
     process.exit(0);
   });
 
   // Force shutdown after 10 seconds
   setTimeout(() => {
-    console.error("Force shutdown after timeout");
+    logger.error('Force shutdown after timeout');
     process.exit(1);
   }, 10000);
 };
 
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
-  gracefulShutdown("uncaughtException");
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', err);
+  gracefulShutdown('uncaughtException');
 });
 
 // Handle unhandled promise rejections
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  gracefulShutdown("unhandledRejection");
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
 });
 
 export default server;
