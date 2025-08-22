@@ -1,10 +1,22 @@
+/**
+ * Libs
+ */
 import prisma from '@/lib/prisma';
-import { hashPassword } from '@/lib/crypto';
-import { ConflictError } from '@/lib/error';
+import { comparePassword, hashPassword } from '@/lib/crypto';
+import { BadRequestError, ConflictError } from '@/lib/error';
+
+/**
+ * Constants
+ */
 import { ERROR_CODE_ENUM } from '@/constants/error.constant';
 
+/**
+ * Types
+ */
+type CredentialPayload = { email: string; password: string };
+
 export const authService = {
-  async register({ email, password }: { email: string; password: string }) {
+  async register({ email, password }: CredentialPayload) {
     try {
       const existingUser = await prisma.user.findUnique({
         where: { email },
@@ -37,6 +49,7 @@ export const authService = {
           id: true,
           email: true,
           name: true,
+          avatar: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -47,7 +60,49 @@ export const authService = {
       throw error;
     }
   },
-  async login() {
-    // TODO:
+  async login({ email, password }: CredentialPayload) {
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+        include: {
+          accounts: true,
+        },
+      });
+
+      if (!existingUser) {
+        throw new BadRequestError(
+          'Invalid email or password',
+          ERROR_CODE_ENUM.INVALID_CREDENTIALS,
+        );
+      }
+
+      const credentialsAccount = existingUser.accounts.find(
+        (acc) => acc.provider === 'credentials',
+      );
+
+      if (!credentialsAccount || !credentialsAccount.password) {
+        throw new BadRequestError(
+          'This account was created using a different method. Please log in with your social account',
+        );
+      }
+
+      const isMatchPassword = await comparePassword(
+        password,
+        credentialsAccount.password,
+      );
+
+      if (!isMatchPassword) {
+        throw new BadRequestError(
+          'Invalid email or password',
+          ERROR_CODE_ENUM.INVALID_CREDENTIALS,
+        );
+      }
+
+      const { accounts, ...user } = existingUser;
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
   },
 };

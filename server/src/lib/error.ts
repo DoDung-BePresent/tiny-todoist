@@ -26,18 +26,22 @@ export class ApiError extends Error {
 
 // 400 - Bad Request
 export class BadRequestError extends ApiError {
-  constructor(message = 'Bad request') {
-    super(message, STATUS_CODE.BAD_REQUEST, ERROR_CODE_ENUM.VALIDATION_ERROR);
+  constructor(message = 'Bad request', errorCode?: ErrorCodeEnumType) {
+    super(
+      message,
+      STATUS_CODE.BAD_REQUEST,
+      errorCode || ERROR_CODE_ENUM.VALIDATION_ERROR,
+    );
   }
 }
 
 // 401 - Unauthorized
 export class UnauthorizedError extends ApiError {
-  constructor(message = 'Unauthorized access') {
+  constructor(message = 'Unauthorized access', errorCode?: ErrorCodeEnumType) {
     super(
       message,
       STATUS_CODE.UNAUTHORIZED,
-      ERROR_CODE_ENUM.ACCESS_UNAUTHORIZED,
+      errorCode || ERROR_CODE_ENUM.ACCESS_UNAUTHORIZED,
     );
   }
 }

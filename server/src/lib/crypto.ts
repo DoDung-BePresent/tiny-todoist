@@ -20,3 +20,18 @@ export const hashPassword = async (password: string): Promise<string> => {
     throw new Error('Password hashing failed');
   }
 };
+
+/**
+ * Compare password
+ */
+export const comparePassword = async (
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> => {
+  try {
+    return await bcryptjs.compare(password, hashedPassword);
+  } catch (error) {
+    logger.error('Fail to compare password', error);
+    throw new Error('Password comparison failed');
+  }
+};

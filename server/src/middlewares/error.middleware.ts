@@ -11,12 +11,6 @@ import logger from '@/lib/logger';
 import { ApiError } from '@/lib/error';
 import { ERROR_CODE_ENUM, STATUS_CODE } from '@/constants/error.constant';
 
-export const asyncHandler = (fn: Function) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-};
-
 const formatZodError = (res: Response, error: z.ZodError) => {
   const errors = error?.issues?.map((err) => ({
     field: err.path.join('.'),
