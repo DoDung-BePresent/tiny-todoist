@@ -1,57 +1,55 @@
+// NOTE: Chua that su shutdown
+
 /**
  * Node modules
  */
-import { Server } from 'http';
+import http from 'http';
 
 /**
  * Custom modules
  */
 import config from '@/config';
 import logger from '@/lib/logger';
+import { connectDB, disconnectDB } from '@/lib/prisma';
 
 /**
  * App
  */
 import app from './app';
 
-const server: Server = app.listen(config.PORT, () => {
-  logger.info(`Server is running at http://localhost:${config.PORT}`);
-});
+let server: http.Server;
 
-// Graceful shutdown
-const gracefulShutdown = (signal: string) => {
-  logger.warn(`Received ${signal}. Starting graceful shutdown...`);
+(async () => {
+  try {
+    await connectDB();
 
-  server.close((err) => {
-    if (err) {
-      logger.error('Error during server shutdown:', err);
+    server = app.listen(config.PORT, () => {
+      logger.info(`Server running http://localhost:${config.PORT}`);
+    });
+  } catch (error) {
+    logger.error('Fail to start the server', error);
+
+    if (config.NODE_ENV === 'production') {
       process.exit(1);
     }
+  }
+})();
 
-    logger.info('Server closed successfully');
-    process.exit(0);
+const handleServerShutdown = () => {
+  logger.info('SIGINT/SIGTERM received. Shutting down gracefully...');
+
+  server.close(async () => {
+    logger.info('HTTP server closed.');
+    try {
+      await disconnectDB();
+      logger.warn('Server SHUTDOWN');
+      process.exit(0);
+    } catch (error) {
+      logger.error('Error during database disconnection', error);
+      process.exit(1);
+    }
   });
-
-  // Force shutdown after 10 seconds
-  setTimeout(() => {
-    logger.error('Force shutdown after timeout');
-    process.exit(1);
-  }, 10000);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  logger.error('Uncaught Exception:', err);
-  gracefulShutdown('uncaughtException');
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  gracefulShutdown('unhandledRejection');
-});
-
-export default server;
+process.on('SIGTERM', handleServerShutdown); // kill command or container shutdown
+process.on('SIGINT', handleServerShutdown); // pressing 'Ctrl + C'

@@ -69,7 +69,7 @@ export const errorHandler = (
   if (error instanceof ApiError) {
     return res.status(error.statusCode).json({
       message: error.message,
-      errorCode: error.statusCode,
+      errorCode: error.errorCode,
     });
   }
 

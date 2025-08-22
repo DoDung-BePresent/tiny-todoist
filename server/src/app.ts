@@ -66,14 +66,14 @@ app.use(limiter);
 
 app.use('/api/v1', v1Routes);
 
-// Error handler
-app.use(notFoundHandler);
-app.use(errorHandler);
-
 app.get('/', (req: Request, res: Response) => {
   res.json({
     msg: 'Hello everyone',
   });
 });
+
+// Error handler
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;

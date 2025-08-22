@@ -44,32 +44,50 @@ export class UnauthorizedError extends ApiError {
 
 // 403 - Forbidden
 export class ForbiddenError extends ApiError {
-  constructor(message = 'Forbidden permissions') {
-    super(message, STATUS_CODE.FORBIDDEN, ERROR_CODE_ENUM.ACCESS_FORBIDDEN);
+  constructor(
+    message = 'Forbidden permissions',
+    errorCode?: ErrorCodeEnumType,
+  ) {
+    super(
+      message,
+      STATUS_CODE.FORBIDDEN,
+      errorCode || ERROR_CODE_ENUM.ACCESS_FORBIDDEN,
+    );
   }
 }
 
 // 404 - Not Found
 export class NotFoundError extends ApiError {
-  constructor(message = 'Resource not found') {
-    super(message, STATUS_CODE.NOT_FOUND, ERROR_CODE_ENUM.RESOURCE_NOT_FOUND);
+  constructor(message = 'Resource not found', errorCode?: ErrorCodeEnumType) {
+    super(
+      message,
+      STATUS_CODE.NOT_FOUND,
+      errorCode || ERROR_CODE_ENUM.RESOURCE_NOT_FOUND,
+    );
   }
 }
 
 // 409 - Conflict
 export class ConflictError extends ApiError {
-  constructor(message = 'Resource conflict') {
-    super(message, STATUS_CODE.CONFLICT, ERROR_CODE_ENUM.RESOURCE_CONFLICT);
+  constructor(message = 'Resource conflict', errorCode?: ErrorCodeEnumType) {
+    super(
+      message,
+      STATUS_CODE.CONFLICT,
+      errorCode || ERROR_CODE_ENUM.RESOURCE_CONFLICT,
+    );
   }
 }
 
 // 500 - Internal Server Error
 export class InternalServerError extends ApiError {
-  constructor(message = 'Internal server error') {
+  constructor(
+    message = 'Internal server error',
+    errorCode?: ErrorCodeEnumType,
+  ) {
     super(
       message,
       STATUS_CODE.INTERNAL_SERVER_ERROR,
-      ERROR_CODE_ENUM.INTERNAL_SERVER_ERROR,
+      errorCode || ERROR_CODE_ENUM.INTERNAL_SERVER_ERROR,
     );
   }
 }
