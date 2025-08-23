@@ -11,4 +11,15 @@ export const authService = {
     const { data } = await api.post('/auth/login', payload);
     return data;
   },
+  loginWithGithub: () => {
+    window.location.href = `${api.defaults.baseURL}/auth/github`;
+  },
+  handleGithubCallback: async (code: string): Promise<AuthResponse> => {
+    const { data } = await api.get(`/api/github/callback?code=${code}`);
+    return data;
+  },
+  getProfile: async (): Promise<AuthResponse> => {
+    const { data } = await api.get('/users/me');
+    return data;
+  },
 };

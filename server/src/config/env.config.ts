@@ -14,10 +14,9 @@ const config = {
   PORT: process.env.PORT || 3000,
   NODE_ENV: process.env.NODE_ENV,
   API_URL: process.env.API_URL,
+  CLIENT_URL: process.env.CLIENT_URL,
   LOG_QUERIES: process.env.LOG_QUERIES || 'false',
-  WHITELIST_ORIGINS: [
-    'http://localhost:5173',
-  ],
+  WHITELIST_ORIGINS: ['http://localhost:5173'],
   DATABASE_URL: process.env.DATABASE_URL,
   DIRECT_URL: process.env.DIRECT_URL,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',

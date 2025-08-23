@@ -62,8 +62,18 @@ export const useAuth = () => {
     },
   });
 
+  const loginWithGithub = () => {
+    try {
+      authService.loginWithGithub();
+    } catch (error) {
+      toast.error('Failed to redirect to GitHub');
+      console.error('GitHub login failed:', error);
+    }
+  };
+
   return {
     login: loginMutation,
     register: registerMutation,
+    loginWithGithub,
   };
 };

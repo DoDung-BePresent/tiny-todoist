@@ -48,7 +48,7 @@ const formSchema = z.object({
 });
 
 const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, loginWithGithub } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,6 +61,10 @@ const LoginPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await login.mutateAsync(values);
+  };
+
+  const handleGithubLogin = () => {
+    loginWithGithub();
   };
 
   return (
@@ -156,6 +160,7 @@ const LoginPage = () => {
                       type='button'
                       className='w-full'
                       disabled={login.isPending}
+                      onClick={handleGithubLogin}
                     >
                       <svg
                         xmlns='http://www.w3.org/2000/svg'

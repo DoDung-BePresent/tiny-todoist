@@ -11,6 +11,7 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import InboxPage from '@/pages/app/InboxPage';
 import TodayPage from '@/pages/app/TodayPage';
 import UpcomingPage from '@/pages/app/UpcomingPage';
+import GithubCallbackPage from '@/pages/auth/GithubCallbackPage';
 
 /**
  * Layouts
@@ -37,6 +38,7 @@ const rootRoutesChildren: RouteObject[] = [
     path: 'login',
     element: <LoginPage />,
   },
+  { path: '/auth/callback', element: <GithubCallbackPage /> },
 ];
 
 const appRoutesChildren: RouteObject[] = [

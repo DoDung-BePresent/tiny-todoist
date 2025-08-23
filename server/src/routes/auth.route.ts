@@ -11,13 +11,13 @@ import passport from 'passport';
 
 const router = Router();
 
-router.use('/login', authController.login);
-router.use('/register', authController.register);
-router.use(
+router.post('/login', authController.login);
+router.post('/register', authController.register);
+router.get(
   '/github',
   passport.authenticate('github', { scope: ['user:email'], session: false }),
 );
-router.use(
+router.get(
   '/github/callback',
   passport.authenticate('github', {
     failureRedirect: '/login',

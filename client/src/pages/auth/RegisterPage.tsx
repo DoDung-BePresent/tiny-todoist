@@ -56,7 +56,7 @@ const formSchema = z
   });
 
 const RegisterPage = () => {
-  const { register } = useAuth();
+  const { register, loginWithGithub } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -70,6 +70,10 @@ const RegisterPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await register.mutateAsync(values);
+  };
+
+  const handleGithubLogin = () => {
+    loginWithGithub();
   };
 
   return (
@@ -192,6 +196,7 @@ const RegisterPage = () => {
                       type='button'
                       className='w-full'
                       disabled={register.isPending}
+                      onClick={handleGithubLogin}
                     >
                       <svg
                         xmlns='http://www.w3.org/2000/svg'

@@ -5,7 +5,7 @@ interface AuthState {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  setAuth: (data: { accessToken: string; user: User }) => void;
+  setAuth: (data: { accessToken: string; user: User | null }) => void;
   clearAuth: () => void;
 }
 

@@ -1,6 +1,7 @@
 /**
  * Node modules
  */
+import { User } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
 /**
@@ -22,7 +23,11 @@ import { STATUS_CODE } from '@/constants/error.constant';
  * Validations
  */
 import { loginSchema, registerSchema } from '@/validations/auth.validation';
-import { User } from '@prisma/client';
+
+/**
+ * Configs
+ */
+import config from '@/config/env.config';
 
 export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -75,13 +80,7 @@ export const authController = {
 
       setTokenCookie(res, 'refreshToken', refreshToken);
 
-      res.status(STATUS_CODE.OK).json({
-        message: 'Github login successful',
-        data: {
-          user,
-          accessToken,
-        },
-      });
+      res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
     } catch (error) {
       next(error);
     }
