@@ -27,6 +27,7 @@ import { Card, CardContent } from '@/components/ui/card';
  * Assets
  */
 import projectRedImage from '@/assets/project-red.avif';
+import { useAuth } from '@/hooks/useAuth';
 
 const formSchema = z
   .object({
@@ -55,6 +56,7 @@ const formSchema = z
   });
 
 const RegisterPage = () => {
+  const { register } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,8 +68,8 @@ const RegisterPage = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await register.mutateAsync(values);
   };
 
   return (
@@ -175,9 +177,10 @@ const RegisterPage = () => {
 
                     <Button
                       type='submit'
+                      disabled={register.isPending}
                       className='w-full'
                     >
-                      Create
+                      {register.isPending ? 'Creating ...' : 'Create'}
                     </Button>
                     <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                       <span className='bg-card text-muted-foreground relative z-10 px-2'>
@@ -188,6 +191,7 @@ const RegisterPage = () => {
                       variant='outline'
                       type='button'
                       className='w-full'
+                      disabled={register.isPending}
                     >
                       <svg
                         xmlns='http://www.w3.org/2000/svg'

@@ -28,6 +28,11 @@ import { Card, CardContent } from '@/components/ui/card';
  */
 import projectGreenImage from '@/assets/project-green.avif';
 
+/**
+ * Hooks
+ */
+import { useAuth } from '@/hooks/useAuth';
+
 const formSchema = z.object({
   email: z
     .string()
@@ -43,6 +48,7 @@ const formSchema = z.object({
 });
 
 const LoginPage = () => {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,8 +59,8 @@ const LoginPage = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await login.mutateAsync(values);
   };
 
   return (
@@ -135,9 +141,10 @@ const LoginPage = () => {
                     />
                     <Button
                       type='submit'
+                      disabled={login.isPending}
                       className='w-full'
                     >
-                      Login
+                      {login.isPending ? 'Logging in...' : 'Login'}
                     </Button>
                     <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                       <span className='bg-card text-muted-foreground relative z-10 px-2'>
@@ -148,6 +155,7 @@ const LoginPage = () => {
                       variant='outline'
                       type='button'
                       className='w-full'
+                      disabled={login.isPending}
                     >
                       <svg
                         xmlns='http://www.w3.org/2000/svg'

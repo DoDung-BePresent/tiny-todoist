@@ -30,6 +30,7 @@ let server: http.Server;
     server = app.listen(config.PORT, () => {
       logger.info(`Server running http://localhost:${config.PORT}`);
     });
+
   } catch (error) {
     logger.error('Fail to start the server', error);
 
