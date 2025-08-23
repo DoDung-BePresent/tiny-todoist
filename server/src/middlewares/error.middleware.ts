@@ -14,6 +14,7 @@ import { ApiError } from '@/lib/error';
  * Constants
  */
 import { ERROR_CODE_ENUM, STATUS_CODE } from '@/constants/error.constant';
+import { Prisma } from '@prisma/client';
 
 const formatZodError = (res: Response, error: z.ZodError) => {
   const errors = error?.issues?.map((err) => ({
@@ -68,6 +69,18 @@ export const errorHandler = (
     return res.status(error.statusCode).json({
       message: error.message,
       errorCode: error.errorCode,
+    });
+  }
+
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    logger.error('An unhandled Prisma error occurred', {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+      message: 'A database error occurred. Please try again later.',
+      errorCode: 'DATABASE_ERROR',
     });
   }
 
