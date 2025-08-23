@@ -16,93 +16,84 @@ import { ERROR_CODE_ENUM } from '@/constants/error.constant';
 type CredentialPayload = { email: string; password: string };
 
 export const authService = {
-  async register({ email, password }: CredentialPayload) {
-    try {
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
+  register: async ({ email, password }: CredentialPayload) => {
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-      if (existingUser) {
-        throw new ConflictError(
-          'Email already exists',
-          ERROR_CODE_ENUM.USER_ALREADY_EXISTS,
-        );
-      }
+    if (existingUser) {
+      throw new ConflictError(
+        'Email already exists',
+        ERROR_CODE_ENUM.USER_ALREADY_EXISTS,
+      );
+    }
 
-      const hashedPassword = await hashPassword(password);
-      const name = email.split('@')[0];
+    const hashedPassword = await hashPassword(password);
+    const name = email.split('@')[0];
 
-      const user = await prisma.user.create({
-        data: {
-          email,
-          name,
-          accounts: {
-            create: {
-              type: 'credentials',
-              provider: 'credentials',
-              providerAccountId: email,
-              password: hashedPassword,
-            },
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        accounts: {
+          create: {
+            type: 'credentials',
+            provider: 'credentials',
+            providerAccountId: email,
+            password: hashedPassword,
           },
         },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          avatar: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-
-      return user;
-    } catch (error) {
-      throw error;
-    }
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatar: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return user;
   },
-  async login({ email, password }: CredentialPayload) {
-    try {
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-        include: {
-          accounts: true,
-        },
-      });
+  login: async ({ email, password }: CredentialPayload) => {
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        accounts: true,
+      },
+    });
 
-      if (!existingUser) {
-        throw new BadRequestError(
-          'Invalid email or password',
-          ERROR_CODE_ENUM.INVALID_CREDENTIALS,
-        );
-      }
-
-      const credentialsAccount = existingUser.accounts.find(
-        (acc) => acc.provider === 'credentials',
+    if (!existingUser) {
+      throw new BadRequestError(
+        'Invalid email or password',
+        ERROR_CODE_ENUM.INVALID_CREDENTIALS,
       );
-
-      if (!credentialsAccount || !credentialsAccount.password) {
-        throw new BadRequestError(
-          'This account was created using a different method. Please log in with your social account',
-        );
-      }
-
-      const isMatchPassword = await comparePassword(
-        password,
-        credentialsAccount.password,
-      );
-
-      if (!isMatchPassword) {
-        throw new BadRequestError(
-          'Invalid email or password',
-          ERROR_CODE_ENUM.INVALID_CREDENTIALS,
-        );
-      }
-
-      const { accounts, ...user } = existingUser;
-
-      return user;
-    } catch (error) {
-      throw error;
     }
+
+    const credentialsAccount = existingUser.accounts.find(
+      (acc) => acc.provider === 'credentials',
+    );
+
+    if (!credentialsAccount || !credentialsAccount.password) {
+      throw new BadRequestError(
+        'This account was created using a different method. Please log in with your social account',
+      );
+    }
+
+    const isMatchPassword = await comparePassword(
+      password,
+      credentialsAccount.password,
+    );
+
+    if (!isMatchPassword) {
+      throw new BadRequestError(
+        'Invalid email or password',
+        ERROR_CODE_ENUM.INVALID_CREDENTIALS,
+      );
+    }
+
+    const { accounts, ...user } = existingUser;
+
+    return user;
   },
 };

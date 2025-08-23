@@ -39,6 +39,18 @@ export const generateTokens = (userId: string) => {
 };
 
 /**
+ * Verify token
+ */
+export const verifyToken = (token: string, secretKey: string) => {
+  try {
+    return jwt.verify(token, secretKey) as { userId: string };
+  } catch (error) {
+    logger.error('Error verifying token', error);
+    throw new Error('Failed to verify authentication token');
+  }
+};
+
+/**
  * Set cookie
  */
 export const setTokenCookie = (

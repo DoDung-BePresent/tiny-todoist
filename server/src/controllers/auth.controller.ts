@@ -1,88 +1,86 @@
-/**
- * Node modules
- */
 import { User } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
-
-/**
- * Libs
- */
-import { generateTokens, setTokenCookie } from '@/lib/jwt';
-
-/**
- * Services
- */
+import prisma from '@/lib/prisma';
+import { UnauthorizedError } from '@/lib/error';
+import { generateTokens, setTokenCookie, verifyToken } from '@/lib/jwt';
 import { authService } from '@/services/auth.service';
-
-/**
- * Constants
- */
 import { STATUS_CODE } from '@/constants/error.constant';
-
-/**
- * Validations
- */
 import { loginSchema, registerSchema } from '@/validations/auth.validation';
-
-/**
- * Configs
- */
 import config from '@/config/env.config';
+import { asyncHandler } from '@/middlewares/error.middleware';
 
 export const authController = {
-  async register(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, password } = registerSchema.parse(req.body);
+  register: asyncHandler(async (req, res, next) => {
+    const { email, password } = registerSchema.parse(req.body);
 
-      const user = await authService.register({ email, password });
+    const user = await authService.register({ email, password });
 
-      const { accessToken, refreshToken } = generateTokens(user.id);
+    const { accessToken, refreshToken } = generateTokens(user.id);
 
-      setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
+    setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
 
-      res.status(STATUS_CODE.CREATED).json({
-        message: 'User created successfully',
-        data: {
-          user,
-          accessToken,
-        },
-      });
-    } catch (error) {
-      next(error);
+    res.status(STATUS_CODE.CREATED).json({
+      message: 'User created successfully',
+      data: {
+        user,
+        accessToken,
+      },
+    });
+  }),
+  login: asyncHandler(async (req, res, next) => {
+    const { email, password } = loginSchema.parse(req.body);
+
+    const user = await authService.login({ email, password });
+
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
+
+    res.status(STATUS_CODE.OK).json({
+      message: 'Login successfully',
+      data: {
+        user,
+        accessToken,
+      },
+    });
+  }),
+  githubCallback: asyncHandler(async (req, res, next) => {
+    const user = req.user as User;
+
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    setTokenCookie(res, 'refreshToken', refreshToken);
+
+    res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
+  }),
+  refreshToken: asyncHandler(async (req, res, next) => {
+    const refreshTokenFromCookie = req.cookies.refreshToken;
+    if (!refreshTokenFromCookie) {
+      throw new UnauthorizedError('Refresh token not found');
     }
-  },
-  async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, password } = loginSchema.parse(req.body);
 
-      const user = await authService.login({ email, password });
+    const decoded = verifyToken(
+      refreshTokenFromCookie,
+      config.JWT_REFRESH_SECRET,
+    );
 
-      const { accessToken, refreshToken } = generateTokens(user.id);
+    const userExists = await prisma.user.count({
+      where: { id: decoded.userId },
+    });
 
-      setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
-
-      res.status(STATUS_CODE.OK).json({
-        message: 'Login successfully',
-        data: {
-          user,
-          accessToken,
-        },
-      });
-    } catch (error) {
-      next(error);
+    if (!userExists) {
+      throw new UnauthorizedError('User for this token no longer exists');
     }
-  },
-  async githubCallback(req: Request, res: Response, next: NextFunction) {
-    try {
-      const user = req.user as User;
 
-      const { accessToken, refreshToken } = generateTokens(user.id);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(
+      decoded.userId,
+    );
 
-      setTokenCookie(res, 'refreshToken', refreshToken);
-
-      res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
-    } catch (error) {
-      next(error);
-    }
-  },
+    setTokenCookie(res, 'refreshToken', newRefreshToken);
+    res.status(STATUS_CODE.OK).json({
+      message: 'Token refreshed successfully',
+      data: {
+        accessToken,
+      },
+    });
+  }),
 };
