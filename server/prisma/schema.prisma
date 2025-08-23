@@ -27,8 +27,8 @@ model User {
 model Account {
   id                  String    @id @default(cuid())
   userId              String
-  type                String    // "oauth" | "credentials"
-  provider            String    // "github" | "credentials"
+  type                AccountType
+  provider            Provider
   providerAccountId   String
 
   // Credentials
@@ -47,5 +47,15 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+}
+
+enum AccountType {
+  oauth
+  credentials
+}
+
+enum Provider {
+  github
+  credentials
 }
 

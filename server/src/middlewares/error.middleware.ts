@@ -2,13 +2,17 @@
  * Node modules
  */
 import { z, ZodError } from 'zod';
-import { Response, ErrorRequestHandler, NextFunction, Request } from 'express';
+import { Response, NextFunction, Request } from 'express';
 
 /**
- * Custom modules
+ * Libs
  */
 import logger from '@/lib/logger';
 import { ApiError } from '@/lib/error';
+
+/**
+ * Constants
+ */
 import { ERROR_CODE_ENUM, STATUS_CODE } from '@/constants/error.constant';
 
 const formatZodError = (res: Response, error: z.ZodError) => {

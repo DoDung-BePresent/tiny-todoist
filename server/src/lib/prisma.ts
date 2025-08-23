@@ -4,10 +4,14 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
- * Custom modules
+ * Lib
  */
-import config from '@/config';
 import logger from '@/lib/logger';
+
+/**
+ * Config
+ */
+import config from '@/config/env.config';
 
 declare global {
   var __prisma: PrismaClient | undefined;

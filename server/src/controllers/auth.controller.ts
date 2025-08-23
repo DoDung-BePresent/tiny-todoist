@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from 'express';
 /**
  * Libs
  */
-import { BadRequestError } from '@/lib/error';
+import { generateTokens, setTokenCookie } from '@/lib/jwt';
 
 /**
  * Services
@@ -22,7 +22,7 @@ import { STATUS_CODE } from '@/constants/error.constant';
  * Validations
  */
 import { loginSchema, registerSchema } from '@/validations/auth.validation';
-import { generateTokens, setTokenCookie } from '@/lib/jwt';
+import { User } from '@prisma/client';
 
 export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -58,6 +58,25 @@ export const authController = {
 
       res.status(STATUS_CODE.OK).json({
         message: 'Login successfully',
+        data: {
+          user,
+          accessToken,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  async githubCallback(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+
+      const { accessToken, refreshToken } = generateTokens(user.id);
+
+      setTokenCookie(res, 'refreshToken', refreshToken);
+
+      res.status(STATUS_CODE.OK).json({
+        message: 'Github login successful',
         data: {
           user,
           accessToken,

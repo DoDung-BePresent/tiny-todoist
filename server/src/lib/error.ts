@@ -1,5 +1,5 @@
 /**
- * Custom modules
+ * Constants
  */
 import {
   ERROR_CODE_ENUM,

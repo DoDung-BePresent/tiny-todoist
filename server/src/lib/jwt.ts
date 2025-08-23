@@ -1,19 +1,19 @@
 /**
  * Node modules
  */
-import jwt from 'jsonwebtoken';
 import ms from 'ms';
+import jwt from 'jsonwebtoken';
+import { Response } from 'express';
 
 /**
  * Config
  */
-import config from '@/config';
+import config from '@/config/env.config';
 
 /**
  * Libs
  */
 import logger from '@/lib/logger';
-import { Response } from 'express';
 
 /**
  * Generate tokens

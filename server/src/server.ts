@@ -6,11 +6,15 @@
 import http from 'http';
 
 /**
- * Custom modules
+ * Libs
  */
-import config from '@/config';
 import logger from '@/lib/logger';
 import { connectDB, disconnectDB } from '@/lib/prisma';
+
+/**
+ * Config
+ */
+import config from '@/config/env.config';
 
 /**
  * App
