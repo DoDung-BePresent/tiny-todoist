@@ -17,9 +17,12 @@ export const authService = {
     const { data } = await api.post('/auth/login', payload);
     return data;
   },
-  refreshToken: async (): Promise<{ data: { accessToken: string } }> => {
-    const { data } = await api.post('/auth/refresh-token');
-    return data;
+  // refreshToken: async (): Promise<{ data: { accessToken: string } }> => {
+  //   const { data } = await api.post('/auth/refresh-token');
+  //   return data;
+  // },
+  logout: async (): Promise<void> => {
+    await api.post('/auth/logout');
   },
   loginWithGithub: () => {
     window.location.href = `${api.defaults.baseURL}/auth/github`;

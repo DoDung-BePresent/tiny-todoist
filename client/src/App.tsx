@@ -25,8 +25,7 @@ import { authService } from '@/services/authService';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 const App = () => {
-  const { setAuth, clearAuth } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const { setAuth, clearAuth, setInitialized, isInitialized } = useAuthStore();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -40,13 +39,13 @@ const App = () => {
         clearAuth();
         console.error('Authentication initialization failed:', error);
       } finally {
-        setIsLoading(false);
+        setInitialized(true);
       }
     };
     initializeAuth();
-  }, [setAuth, clearAuth]);
+  }, [setAuth, clearAuth, setInitialized]);
 
-  if (isLoading) {
+  if (!isInitialized) {
     return <LoadingSpinner />;
   }
   return <RouterProvider router={router} />;

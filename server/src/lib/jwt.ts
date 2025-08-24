@@ -79,6 +79,12 @@ export const setTokenCookie = (
 export const clearTokenCookie = (
   res: Response,
   cookieName: 'accessToken' | 'refreshToken',
+  path?: string,
 ) => {
-  res.clearCookie(cookieName);
+  res.clearCookie(cookieName, {
+    secure: config.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: path ?? '/',
+  });
+  return res;
 };

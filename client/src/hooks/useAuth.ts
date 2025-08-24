@@ -63,10 +63,16 @@ export const useAuth = () => {
     }
   };
 
-  const logout = () => {
-    clearAuth();
-    toast.success('Logged out successfully');
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      clearAuth();
+      toast.success('Logged out successfully');
+      navigate('/login');
+    }
   };
 
   return {

@@ -1,7 +1,12 @@
 import { User } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { UnauthorizedError } from '@/lib/error';
-import { generateTokens, setTokenCookie, verifyToken } from '@/lib/jwt';
+import {
+  clearTokenCookie,
+  generateTokens,
+  setTokenCookie,
+  verifyToken,
+} from '@/lib/jwt';
 import { authService } from '@/services/auth.service';
 import { STATUS_CODE } from '@/constants/error.constant';
 import { loginSchema, registerSchema } from '@/validations/auth.validation';
@@ -16,7 +21,12 @@ export const authController = {
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
+    setTokenCookie(
+      res,
+      'refreshToken',
+      refreshToken,
+      '/api/v1/auth/refresh-token',
+    );
 
     res.status(STATUS_CODE.CREATED).json({
       message: 'User created successfully',
@@ -33,7 +43,12 @@ export const authController = {
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    setTokenCookie(res, 'refreshToken', refreshToken, '/refresh-token');
+    setTokenCookie(
+      res,
+      'refreshToken',
+      refreshToken,
+      '/api/v1/auth/refresh-token',
+    );
 
     res.status(STATUS_CODE.OK).json({
       message: 'Login successfully',
@@ -43,12 +58,23 @@ export const authController = {
       },
     });
   }),
+  logout: asyncHandler(async (req, res, next) => {
+    clearTokenCookie(res, 'refreshToken', '/api/v1/auth/refresh-token');
+    res.status(STATUS_CODE.OK).json({
+      message: 'Logged out successfully',
+    });
+  }),
   githubCallback: asyncHandler(async (req, res, next) => {
     const user = req.user as User;
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    setTokenCookie(res, 'refreshToken', refreshToken);
+    setTokenCookie(
+      res,
+      'refreshToken',
+      refreshToken,
+      '/api/v1/auth/refresh-token',
+    );
 
     res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
   }),
@@ -75,7 +101,13 @@ export const authController = {
       decoded.userId,
     );
 
-    setTokenCookie(res, 'refreshToken', newRefreshToken);
+    setTokenCookie(
+      res,
+      'refreshToken',
+      newRefreshToken,
+      '/api/v1/auth/refresh-token',
+    );
+
     res.status(STATUS_CODE.OK).json({
       message: 'Token refreshed successfully',
       data: {

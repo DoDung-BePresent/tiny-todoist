@@ -1,28 +1,30 @@
 import { create } from 'zustand';
 import type { User } from '@/types/auth';
 
-interface AuthState {
-  accessToken: string | null;
+type AuthState = {
   user: User | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (data: { accessToken: string; user: User | null }) => void;
+  isInitialized: boolean;
+};
+type AuthActions = {
+  setAuth: (data: { user: User | null; accessToken: string | null }) => void;
   clearAuth: () => void;
-}
+  setInitialized: (isInitialized: boolean) => void;
+};
 
-export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
+export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
+  accessToken: null,
   isAuthenticated: false,
-  setAuth: ({ accessToken, user }) =>
+  isInitialized: false,
+  setAuth: (data) =>
     set({
-      accessToken,
-      user,
-      isAuthenticated: true,
+      user: data.user,
+      accessToken: data.accessToken,
+      isAuthenticated: !!data.accessToken && !!data.user,
     }),
   clearAuth: () =>
-    set({
-      accessToken: null,
-      user: null,
-      isAuthenticated: false,
-    }),
+    set({ user: null, accessToken: null, isAuthenticated: false }),
+  setInitialized: (isInitialized) => set({ isInitialized }),
 }));

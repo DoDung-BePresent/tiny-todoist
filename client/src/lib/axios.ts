@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import axios from 'axios';
+import axios, { type CreateAxiosDefaults } from 'axios';
 
 /**
  * Configs
@@ -13,15 +13,13 @@ import config from '@/config';
  */
 import { useAuthStore } from '@/stores/auth';
 
-/**
- * Services
- */
-import { authService } from '@/services/authService';
-
-const api = axios.create({
+const options: CreateAxiosDefaults = {
   baseURL: config.API_BASE_URL,
   withCredentials: true,
-});
+};
+
+const api = axios.create(options);
+const apiRefresh = axios.create(options);
 
 api.interceptors.request.use(
   (config) => {
@@ -45,8 +43,8 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await authService.refreshToken();
-        const { accessToken } = response.data;
+        const response = await apiRefresh.post('/auth/refresh-token');
+        const { accessToken } = response.data.data;
 
         const existingUser = useAuthStore.getState().user;
         useAuthStore.getState().setAuth({ accessToken, user: existingUser });
@@ -56,7 +54,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clearAuth();
-        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
