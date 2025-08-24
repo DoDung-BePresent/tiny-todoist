@@ -6,24 +6,27 @@ import { createBrowserRouter } from 'react-router';
 /**
  * Pages
  */
-import LoginPage from '@/pages/auth/LoginPage';
-import RegisterPage from '@/pages/auth/RegisterPage';
+import HomePage from '@/pages/HomePage';
 import InboxPage from '@/pages/app/InboxPage';
 import TodayPage from '@/pages/app/TodayPage';
+import LoginPage from '@/pages/auth/LoginPage';
 import UpcomingPage from '@/pages/app/UpcomingPage';
+import RegisterPage from '@/pages/auth/RegisterPage';
 import GithubCallbackPage from '@/pages/auth/GithubCallbackPage';
 
 /**
  * Layouts
  */
 import AppLayout from '@/layouts/AppLayout';
-import RootLayout from '@/layouts/RootLayout';
+import AuthLayout from '@/layouts/AuthLayout';
 
 /**
  * Types
  */
 import type { RouteObject } from 'react-router';
-import HomePage from '@/pages/HomePage';
+
+import { GuestRoute } from './components/GuestRoute';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const rootRoutesChildren: RouteObject[] = [
   {
@@ -59,13 +62,23 @@ const appRoutesChildren: RouteObject[] = [
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootLayout />,
-    children: rootRoutesChildren,
+    element: <GuestRoute />,
+    children: [
+      {
+        element: <AuthLayout />,
+        children: rootRoutesChildren,
+      },
+    ],
   },
   {
     path: '/app',
-    element: <AppLayout />,
-    children: appRoutesChildren,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: appRoutesChildren,
+      },
+    ],
   },
 ]);
 

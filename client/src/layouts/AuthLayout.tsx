@@ -8,7 +8,7 @@ import { Outlet } from 'react-router';
  */
 import { Logo } from '@/components/Logo';
 
-const RootLayout = () => {
+const AuthLayout = () => {
   return (
     <div className='flex h-screen flex-col bg-[#fefdfc] px-10 py-5'>
       <header className='mb-10'>
@@ -21,4 +21,4 @@ const RootLayout = () => {
   );
 };
 
-export default RootLayout;
+export default AuthLayout;

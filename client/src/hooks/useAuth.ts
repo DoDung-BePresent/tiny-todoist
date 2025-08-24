@@ -1,6 +1,7 @@
 /**
  * Node modules
  */
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 
@@ -18,12 +19,15 @@ import type { LoginPayload, RegisterPayload } from '@/types/auth';
  * Store
  */
 import { useAuthStore } from '@/stores/auth';
-import { toast } from 'sonner';
+
+/**
+ * Lib
+ */
 import { extractErrorDetails } from '@/lib/error';
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { setAuth, clearAuth } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => authService.login(payload),
@@ -32,15 +36,9 @@ export const useAuth = () => {
       navigate('/app/today');
     },
     onError: (error) => {
-      const { message, errorCode } = extractErrorDetails(error);
+      const { message } = extractErrorDetails(error);
 
       toast.error(message);
-
-      console.error('Login failed:', {
-        message,
-        errorCode,
-        originalError: error,
-      });
     },
   });
 
@@ -51,14 +49,8 @@ export const useAuth = () => {
       navigate('/app/today');
     },
     onError: (error) => {
-      const { message, errorCode } = extractErrorDetails(error);
+      const { message } = extractErrorDetails(error);
       toast.error(message);
-
-      console.error('Registration failed:', {
-        message,
-        errorCode,
-        originalError: error,
-      });
     },
   });
 
@@ -71,9 +63,16 @@ export const useAuth = () => {
     }
   };
 
+  const logout = () => {
+    clearAuth();
+    toast.success('Logged out successfully');
+    navigate('/login');
+  };
+
   return {
     login: loginMutation,
     register: registerMutation,
     loginWithGithub,
+    logout,
   };
 };

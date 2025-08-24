@@ -1,4 +1,11 @@
+/**
+ * Libs
+ */
 import api from '@/lib/axios';
+
+/**
+ * Types
+ */
 import type { LoginPayload, RegisterPayload, AuthResponse } from '@/types/auth';
 
 export const authService = {
@@ -6,9 +13,12 @@ export const authService = {
     const { data } = await api.post('/auth/register', payload);
     return data;
   },
-
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
     const { data } = await api.post('/auth/login', payload);
+    return data;
+  },
+  refreshToken: async (): Promise<{ data: { accessToken: string } }> => {
+    const { data } = await api.post('/auth/refresh-token');
     return data;
   },
   loginWithGithub: () => {

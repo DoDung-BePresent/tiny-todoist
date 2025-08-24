@@ -1,6 +1,7 @@
 /**
  * Node modules
  */
+import { useEffect, useState } from 'react';
 import { RouterProvider } from 'react-router';
 
 /**
@@ -8,7 +9,46 @@ import { RouterProvider } from 'react-router';
  */
 import router from '@/routes';
 
+/**
+ * Stores
+ */
+import { useAuthStore } from '@/stores/auth';
+
+/**
+ * Services
+ */
+import { authService } from '@/services/authService';
+
+/**
+ * Components
+ */
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+
 const App = () => {
+  const { setAuth, clearAuth } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const response = await authService.getProfile();
+        setAuth({
+          accessToken: useAuthStore.getState().accessToken!,
+          user: response.data.user,
+        });
+      } catch (error) {
+        clearAuth();
+        console.error('Authentication initialization failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initializeAuth();
+  }, [setAuth, clearAuth]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
   return <RouterProvider router={router} />;
 };
 
