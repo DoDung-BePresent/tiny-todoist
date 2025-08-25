@@ -6,17 +6,15 @@ import { Outlet } from 'react-router';
 /**
  * Components
  */
-import { Logo } from '@/components/Logo';
+import { Header } from '@/components/Header';
 
 const AuthLayout = () => {
   return (
-    <div className='container mx-auto flex h-screen flex-col bg-[#fefdfc] px-10 py-5'>
-      <header className='mb-10'>
-        <Logo />
-      </header>
-      <div className='flex flex-1 items-center justify-center'>
+    <div className='container mx-auto flex h-screen flex-col gap-10 bg-[#fefdfc]'>
+      <Header />
+      <main className='flex flex-1 items-center justify-center'>
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 };

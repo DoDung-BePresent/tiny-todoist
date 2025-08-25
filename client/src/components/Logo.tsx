@@ -1,4 +1,7 @@
-import logoImage from '@/assets/logo.png';
+/**
+ * Assets
+ */
+import logoImage from '@/assets/logo.svg';
 
 export const Logo = () => {
   return (
@@ -6,9 +9,11 @@ export const Logo = () => {
       <img
         src={logoImage}
         alt='Logo'
-        className='size-8'
+        className='size-7.5'
       />
-      <span className='text-primary text-xl font-[750]'>Tiny Todoist</span>
+      <span className='text-primary font-quicksand text-2xl font-extrabold tracking-tight'>
+        tiny todoist
+      </span>
     </div>
   );
 };

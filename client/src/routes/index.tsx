@@ -12,6 +12,7 @@ import TodayPage from '@/pages/app/TodayPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import UpcomingPage from '@/pages/app/UpcomingPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
+import RootErrorBoundary from '@/pages/RootErrorBoundary';
 import GithubCallbackPage from '@/pages/auth/GithubCallbackPage';
 
 /**
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <GuestRoute />,
+    errorElement: <RootErrorBoundary />,
     children: [
       {
         element: <AuthLayout />,
@@ -73,6 +75,7 @@ const router = createBrowserRouter([
   {
     path: '/app',
     element: <ProtectedRoute />,
+    errorElement: <RootErrorBoundary />,
     children: [
       {
         element: <AppLayout />,
