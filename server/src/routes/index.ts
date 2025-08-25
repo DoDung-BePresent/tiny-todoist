@@ -6,12 +6,14 @@ import { Router } from 'express';
 /**
  * Routes
  */
-import authRoutes from '@/routes/auth.route';
 import userRoutes from '@/routes/user.route';
+import taskRouter from '@/routes/task.route';
+import authRouter from '@/routes/auth.route';
 
 const router = Router();
 
-router.use('/auth', authRoutes);
+router.use('/auth', authRouter);
 router.use('/users', userRoutes);
+router.use('/tasks', taskRouter);
 
 export default router;

@@ -1,9 +1,20 @@
+/**
+ * Node modules
+ */
 import { Router } from 'express';
+
+/**
+ * Controllers
+ */
 import { userController } from '@/controllers/user.controller';
+
+/**
+ * Middlewares
+ */
 import { authenticate } from '@/middlewares/auth.middleware';
 
-const router = Router();
+const userRouter = Router();
 
-router.get('/me', authenticate, userController.getMe);
+userRouter.get('/me', authenticate, userController.getMe);
 
-export default router;
+export default userRouter;

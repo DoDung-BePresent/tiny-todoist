@@ -17,6 +17,7 @@ model User {
 
   // Relations
   accounts    Account[]
+  tasks       Task[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -49,6 +50,24 @@ model Account {
   @@map("accounts")
 }
 
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  dueDate     DateTime?
+  priority    Priority  @default(P4)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId      String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("tasks")
+}
+
 enum AccountType {
   oauth
   credentials
@@ -57,5 +76,12 @@ enum AccountType {
 enum Provider {
   github
   credentials
+}
+
+enum Priority {
+  P1 // Urgent
+  P2 // High
+  P3 // Medium
+  P4 // Low
 }
 

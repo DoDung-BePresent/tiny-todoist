@@ -1,13 +1,14 @@
-/**
- * Node modules
- */
-import { Request } from 'express';
-import { User } from '@prisma/client';
+import type { User as PrismaUser } from '@prisma/client';
 
 declare global {
   namespace Express {
+    interface AuthInfo {}
+
+    interface User extends PrismaUser {}
+
     interface Request {
-      user?: User;
+      authInfo?: AuthInfo | undefined;
+      user?: User | undefined;
     }
   }
 }

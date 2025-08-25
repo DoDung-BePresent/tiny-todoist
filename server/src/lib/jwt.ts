@@ -11,43 +11,28 @@ import { Response } from 'express';
 import config from '@/config/env.config';
 
 /**
- * Libs
- */
-import logger from '@/lib/logger';
-
-/**
  * Generate tokens
  */
 export const generateTokens = (userId: string) => {
-  try {
-    const accessToken = jwt.sign({ userId }, config.JWT_ACCESS_SECRET, {
-      expiresIn: config.ACCESS_TOKEN_EXPIRY,
-    });
+  const accessToken = jwt.sign({ userId }, config.JWT_ACCESS_SECRET, {
+    expiresIn: config.ACCESS_TOKEN_EXPIRY,
+  });
 
-    const refreshToken = jwt.sign({ userId }, config.JWT_REFRESH_SECRET, {
-      expiresIn: config.REFRESH_TOKEN_EXPIRY,
-    });
+  const refreshToken = jwt.sign({ userId }, config.JWT_REFRESH_SECRET, {
+    expiresIn: config.REFRESH_TOKEN_EXPIRY,
+  });
 
-    return {
-      accessToken,
-      refreshToken,
-    };
-  } catch (error) {
-    logger.error('Error generating tokens:', error);
-    throw new Error('Failed to generate authentication tokens');
-  }
+  return {
+    accessToken,
+    refreshToken,
+  };
 };
 
 /**
  * Verify token
  */
 export const verifyToken = (token: string, secretKey: string) => {
-  try {
-    return jwt.verify(token, secretKey) as { userId: string };
-  } catch (error) {
-    logger.error('Error verifying token', error);
-    throw new Error('Failed to verify authentication token');
-  }
+  return jwt.verify(token, secretKey) as { userId: string };
 };
 
 /**

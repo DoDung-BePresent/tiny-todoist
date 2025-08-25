@@ -44,11 +44,17 @@ export const authenticate = async (
     next();
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      return next(new UnauthorizedError('Token has expired'));
+      return next(
+        new UnauthorizedError('Your session has expired. Please login again.'),
+      );
     }
     if (error.name === 'JsonWebTokenError') {
-      return next(new UnauthorizedError('Invalid token'));
+      return next(new UnauthorizedError('Invalid authentication token'));
     }
-    next(error);
+    if (error.name === 'NotBeforeError') {
+      return next(new UnauthorizedError('Token not yet valid'));
+    }
+
+    next(new UnauthorizedError('Authentication failed'));
   }
 };

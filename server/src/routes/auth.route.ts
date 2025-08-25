@@ -14,17 +14,17 @@ import { authController } from '@/controllers/auth.controller';
  */
 import { authenticate } from '@/middlewares/auth.middleware';
 
-const router = Router();
+const authRouter = Router();
 
-router.post('/login', authController.login);
-router.post('/register', authController.register);
-router.post('/refresh-token', authController.refreshToken);
-router.post('/logout', authController.logout);
-router.get(
+authRouter.post('/login', authController.login);
+authRouter.post('/register', authController.register);
+authRouter.post('/refresh-token', authController.refreshToken);
+authRouter.post('/logout', authenticate, authController.logout);
+authRouter.get(
   '/github',
   passport.authenticate('github', { scope: ['user:email'], session: false }),
 );
-router.get(
+authRouter.get(
   '/github/callback',
   passport.authenticate('github', {
     failureRedirect: '/login',
@@ -33,4 +33,4 @@ router.get(
   authController.githubCallback,
 );
 
-export default router;
+export default authRouter;
