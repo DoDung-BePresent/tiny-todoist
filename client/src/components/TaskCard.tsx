@@ -21,9 +21,11 @@ export const TaskCard = ({
           setCompleted={setCompleted}
           className='mt-1'
         />
-        <div className=''>
-          <span className='text-sm'>{title}</span>
-          <p className='text-muted-foreground text-xs'>{description}</p>
+        <div className='w-full pr-16'>
+          <span className='truncate text-sm'>{title}</span>
+          <p className='text-muted-foreground truncate text-xs'>
+            {description}
+          </p>
         </div>
       </div>
     </div>
@@ -61,3 +63,5 @@ const CheckButton = ({
     </button>
   );
 };
+
+
