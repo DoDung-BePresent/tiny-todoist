@@ -10,13 +10,14 @@ const InboxPage = () => {
         <PageTitle>Inbox</PageTitle>
       </PageHeader>
       <PageList>
-        {tasks?.map(({ id, title, description, completed }) => (
+        {tasks?.map(({ id, title, description, completed, dueDate }) => (
           <TaskCard
             key={id}
             id={id}
             title={title}
             description={description}
             completed={completed}
+            dueDate={dueDate}
           />
         ))}
       </PageList>

@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { CheckIcon, CircleIcon } from 'lucide-react';
+import { CalendarIcon, CheckIcon, CircleIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types/task';
+import { format } from 'date-fns';
+import { formatCustomDate } from '@/lib/date';
 
-type TaskCardProps = Pick<Task, 'id' | 'title' | 'description' | 'completed'>;
+type TaskCardProps = Pick<
+  Task,
+  'id' | 'title' | 'description' | 'completed' | 'dueDate'
+>;
 
 //TODO: add animation when complete task
 export const TaskCard = ({
@@ -11,6 +16,7 @@ export const TaskCard = ({
   title,
   description,
   completed: initialState,
+  dueDate,
 }: TaskCardProps) => {
   const [completed, setCompleted] = useState(initialState);
   return (
@@ -26,6 +32,12 @@ export const TaskCard = ({
           <p className='text-muted-foreground truncate text-xs'>
             {description}
           </p>
+          {dueDate && (
+            <div className='text-muted-foreground mt-1 flex items-center gap-1'>
+              <CalendarIcon className='size-3' />
+              <span className='text-xs'>{formatCustomDate(dueDate)}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -63,5 +75,3 @@ const CheckButton = ({
     </button>
   );
 };
-
-

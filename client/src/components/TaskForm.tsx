@@ -15,12 +15,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTaskMutations } from '@/hooks/useTasks';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Calendar1Icon, CalendarIcon, FlagIcon, SunIcon } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { CalendarIcon, FlagIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
-import { useState } from 'react';
 import type { Priority } from '@/types/task';
-import { format } from 'date-fns';
+import { formatCustomDate } from '@/lib/date';
 
 type TaskFromProps = {
   className?: string;
@@ -130,7 +128,6 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                               size='sm'
                               className={cn(
                                 'text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none',
-                                field.value && 'text-primary',
                               )}
                             >
                               <CalendarIcon
@@ -138,7 +135,7 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                                 className='size-4'
                               />
                               {field.value
-                                ? format(field.value, 'MMM d')
+                                ? formatCustomDate(field.value)
                                 : 'Date'}
                             </Button>
                           </FormControl>
@@ -148,6 +145,7 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                           className='w-auto p-0'
                         >
                           <Calendar
+                            disabled={{ before: new Date() }}
                             mode='single'
                             selected={field.value}
                             onSelect={field.onChange}
@@ -172,7 +170,14 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                               size='sm'
                               className={cn(
                                 'text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none',
-                                field.value && 'text-primary',
+                                {
+                                  'border-red-500 text-red-500 hover:bg-red-50 hover:text-red-500':
+                                    field.value === 'P1',
+                                  'border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-500':
+                                    field.value === 'P2',
+                                  'border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-500':
+                                    field.value === 'P3',
+                                },
                               )}
                             >
                               <FlagIcon
@@ -194,6 +199,14 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                                 className='justify-start rounded-none font-normal'
                                 onClick={() => field.onChange(p.value)}
                               >
+                                <FlagIcon
+                                  strokeWidth={2}
+                                  className={cn('size-4', {
+                                    'text-red-500': p.value === 'P1',
+                                    'text-amber-500': p.value === 'P2',
+                                    'text-blue-500': p.value === 'P3',
+                                  })}
+                                />
                                 {p.label}
                               </Button>
                             ))}
