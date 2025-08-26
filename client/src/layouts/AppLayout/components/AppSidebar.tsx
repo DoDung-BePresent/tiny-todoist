@@ -29,6 +29,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { HelpButton } from '@/components/HelpButton';
 import { UserButton } from '@/components/UserButton';
+import { TaskDialog } from '@/components/TaskDialog';
 
 export const AppSidebar = () => {
   const location = useLocation();
@@ -52,16 +53,18 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  size='lg'
-                  className='gap-1 [&>svg]:size-7'
-                >
-                  <AddCircle
-                    variant='Bold'
-                    className='text-primary'
-                  />
-                  <span className='font-medium text-[#a81f00]'>Add task</span>
-                </SidebarMenuButton>
+                <TaskDialog>
+                  <SidebarMenuButton
+                    size='lg'
+                    className='gap-1 [&>svg]:size-7'
+                  >
+                    <AddCircle
+                      variant='Bold'
+                      className='text-primary'
+                    />
+                    <span className='font-medium text-[#a81f00]'>Add task</span>
+                  </SidebarMenuButton>
+                </TaskDialog>
               </SidebarMenuItem>
               {SIDEBAR_LINKS.map((link) => {
                 const isActive = location.pathname.startsWith(link.href);

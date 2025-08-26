@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
 
 /**

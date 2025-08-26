@@ -6,7 +6,7 @@ import { Columns3Icon } from 'lucide-react';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 
-export const TaskViewHeader = () => {
+export const TopAppBar = () => {
   const { state } = useSidebar();
   return (
     <div className='flex items-center'>

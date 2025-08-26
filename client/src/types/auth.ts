@@ -19,8 +19,3 @@ export interface AuthResponseData {
   user: User;
   accessToken: string;
 }
-
-export interface AuthResponse {
-  message: string;
-  data: AuthResponseData;
-}

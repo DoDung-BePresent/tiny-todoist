@@ -2,18 +2,19 @@
  * Libs
  */
 import api from '@/lib/axios';
+import type { ApiResponse } from '@/types/api';
 
 /**
  * Types
  */
-import type { LoginPayload, RegisterPayload, AuthResponse } from '@/types/auth';
+import type { AuthResponseData, LoginPayload, RegisterPayload} from '@/types/auth';
 
 export const authService = {
-  register: async (payload: RegisterPayload): Promise<AuthResponse> => {
+  register: async (payload: RegisterPayload): Promise<ApiResponse<AuthResponseData>> => {
     const { data } = await api.post('/auth/register', payload);
     return data;
   },
-  login: async (payload: LoginPayload): Promise<AuthResponse> => {
+  login: async (payload: LoginPayload): Promise<ApiResponse<AuthResponseData>> => {
     const { data } = await api.post('/auth/login', payload);
     return data;
   },
@@ -27,11 +28,11 @@ export const authService = {
   loginWithGithub: () => {
     window.location.href = `${api.defaults.baseURL}/auth/github`;
   },
-  handleGithubCallback: async (code: string): Promise<AuthResponse> => {
+  handleGithubCallback: async (code: string): Promise<ApiResponse<AuthResponseData>> => {
     const { data } = await api.get(`/api/github/callback?code=${code}`);
     return data;
   },
-  getProfile: async (): Promise<AuthResponse> => {
+  getProfile: async (): Promise<ApiResponse<AuthResponseData>> => {
     const { data } = await api.get('/users/me');
     return data;
   },
