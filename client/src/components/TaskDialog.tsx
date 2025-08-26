@@ -5,6 +5,8 @@ import { TaskForm } from '@/components/TaskForm';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 
+// TODO: Position of dialog must be 20% of height! Test with large description
+
 export const TaskDialog = ({ children }: { children: React.ReactNode }) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   return (

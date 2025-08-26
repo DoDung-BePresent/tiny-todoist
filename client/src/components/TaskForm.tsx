@@ -47,55 +47,58 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
 
   return (
     <Card className={cn('border-0 p-0 shadow-none', className)}>
-      <CardContent className='p-4'>
+      <CardContent className='px-0 py-4'>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='space-y-4'
-          >
-            <FormField
-              control={form.control}
-              name='title'
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      autoFocus
-                      placeholder='Task name'
-                      className='border-0 px-1 text-base font-semibold shadow-none focus-visible:ring-0'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Description'
-                      className='border-0 px-1 shadow-none focus-visible:ring-0'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className='flex items-center justify-end gap-2 border-t pt-4'>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className='max-h-60 overflow-y-auto px-4 py-2 pt-0'>
+              <FormField
+                control={form.control}
+                name='title'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        autoFocus
+                        placeholder='Task name'
+                        className='border-0 px-1 pb-0 !text-xl font-semibold shadow-none focus-visible:ring-0'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='description'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Description'
+                        className='min-h-5 resize-none border-0 p-1 pt-0 shadow-none focus-visible:ring-0'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className='flex items-center justify-end gap-2 border-t-[1px] p-4 pb-0'>
               <Button
                 type='button'
-                variant='ghost'
+                variant='secondary'
+                size='sm'
+                className='rounded-[6px]'
                 onClick={onDone}
               >
                 Cancel
               </Button>
               <Button
                 type='submit'
+                size='sm'
+                className='rounded-[6px]'
                 disabled={createTask.isPending}
               >
                 {createTask.isPending ? 'Adding...' : 'Add task'}
