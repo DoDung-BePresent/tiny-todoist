@@ -19,6 +19,18 @@ export const taskService = {
     return data;
   },
 
+  getTaskStats: async (): Promise<
+    ApiResponse<{
+      today: number;
+      upcoming: number;
+      inbox: number;
+      completed: number;
+    }>
+  > => {
+    const { data } = await api.get('/tasks/stats');
+    return data;
+  },
+
   updateTask: async (
     taskId: string,
     payload: UpdateTaskPayload,

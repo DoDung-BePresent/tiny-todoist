@@ -26,6 +26,14 @@ export const taskController = {
       data: { tasks },
     });
   }),
+  getTaskStats: asyncHandler(async (req, res) => {
+    const { id: userId } = req.user!;
+    const stats = await taskService.getTaskStats(userId);
+    res.status(STATUS_CODE.OK).json({
+      message: 'Task stats fetched successfully',
+      data: stats,
+    });
+  }),
   getTask: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
     const { id: taskId } = taskValidation.taskIdSchema.parse(req.params);

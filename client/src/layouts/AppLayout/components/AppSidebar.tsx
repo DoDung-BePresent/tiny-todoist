@@ -30,9 +30,20 @@ import { Button } from '@/components/ui/button';
 import { HelpButton } from '@/components/HelpButton';
 import { UserButton } from '@/components/UserButton';
 import { TaskDialog } from '@/components/TaskDialog';
+import { useTaskStatsQuery } from '@/hooks/useTasks';
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const { stats } = useTaskStatsQuery();
+
+  const getCountForLink = (href: string) => {
+    if (href.includes('today')) return stats?.today;
+    if (href.includes('upcoming')) return stats?.upcoming;
+    if (href.includes('inbox')) return stats?.inbox;
+    if (href.includes('completed')) return stats?.completed;
+    return 0;
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className='flex flex-row items-center justify-between !px-3 !pt-2.5'>
@@ -69,6 +80,7 @@ export const AppSidebar = () => {
               {SIDEBAR_LINKS.map((link) => {
                 const isActive = location.pathname.startsWith(link.href);
                 const IconComponent = link.icon;
+                const count = getCountForLink(link.href) || 0;
                 return (
                   <SidebarMenuItem key={link.href}>
                     <SidebarMenuButton
@@ -95,9 +107,11 @@ export const AppSidebar = () => {
                         </span>
                       </Link>
                     </SidebarMenuButton>
-                    <SidebarMenuBadge className='font-normal opacity-60 peer-data-[active=true]/menu-button:text-[#dc4c3e]'>
-                      2
-                    </SidebarMenuBadge>
+                    {count > 0 && (
+                      <SidebarMenuBadge className='font-normal opacity-60 peer-data-[active=true]/menu-button:text-[#dc4c3e]'>
+                        {count}
+                      </SidebarMenuBadge>
+                    )}
                   </SidebarMenuItem>
                 );
               })}

@@ -18,6 +18,19 @@ export const useTasksQuery = (filter?: string) => {
   };
 };
 
+export const useTaskStatsQuery = () => {
+  const query = useQuery({
+    queryKey: ['tasks', 'stats'],
+    queryFn: taskService.getTaskStats,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return {
+    stats: query.data?.data,
+    isLoading: query.isLoading,
+  };
+};
+
 export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
@@ -81,7 +94,7 @@ export const useTaskMutations = () => {
       toast.error(message || 'Failed to update task.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'stats'] });
     },
   });
 

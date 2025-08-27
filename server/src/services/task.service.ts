@@ -73,6 +73,49 @@ export const taskService = {
 
     return task;
   },
+  getTaskStats: async (userId: string) => {
+    const todayCondition = {
+      userId,
+      completed: false,
+      dueDate: {
+        gte: startOfDay(new Date()),
+        lte: endOfDay(new Date()),
+      },
+    };
+
+    const upcomingCondition = {
+      userId,
+      completed: false,
+      dueDate: {
+        gt: endOfDay(new Date()),
+      },
+    };
+
+    const inboxCondition = {
+      userId,
+      completed: false,
+    };
+
+    const completedCondition = {
+      userId,
+      completed: true,
+    };
+
+    const [todayCount, upcomingCount, inboxCount, completedCount] =
+      await Promise.all([
+        prisma.task.count({ where: todayCondition }),
+        prisma.task.count({ where: upcomingCondition }),
+        prisma.task.count({ where: inboxCondition }),
+        prisma.task.count({ where: completedCondition }),
+      ]);
+
+    return {
+      today: todayCount,
+      upcoming: upcomingCount,
+      inbox: inboxCount,
+      completed: completedCount,
+    };
+  },
   updateTask: async (
     taskId: string,
     userId: string,
