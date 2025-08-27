@@ -1,15 +1,19 @@
 import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
-import { TaskCard } from '@/components/TaskCard';
+import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
 import { useTasksQuery } from '@/hooks/useTasks';
 
 const InboxPage = () => {
-  const { tasks } = useTasksQuery();
+  const { tasks, isLoading } = useTasksQuery();
   return (
     <Page>
       <PageHeader>
         <PageTitle>Inbox</PageTitle>
       </PageHeader>
       <PageList>
+        {isLoading &&
+          Array.from({ length: 5 }).map((_, index) => (
+            <TaskCardSkeleton key={index} />
+          ))}
         {tasks?.map(({ id, title, description, completed, dueDate }) => (
           <TaskCard
             key={id}

@@ -1,30 +1,47 @@
-import { useState } from 'react';
 import { CalendarIcon, CheckIcon, CircleIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types/task';
-import { format } from 'date-fns';
 import { formatCustomDate } from '@/lib/date';
+import { Skeleton } from './ui/skeleton';
+import { useTaskMutations } from '@/hooks/useTasks';
+import { toast } from 'sonner';
 
 type TaskCardProps = Pick<
   Task,
   'id' | 'title' | 'description' | 'completed' | 'dueDate'
 >;
 
-//TODO: add animation when complete task
 export const TaskCard = ({
   id,
   title,
   description,
-  completed: initialState,
+  completed,
   dueDate,
 }: TaskCardProps) => {
-  const [completed, setCompleted] = useState(initialState);
+  const { updateTask } = useTaskMutations();
+
+  const handleToggleComplete = () => {
+    const isCompleting = !completed;
+    updateTask.mutate({ taskId: id, payload: { completed: isCompleting } });
+
+    if (isCompleting) {
+      toast('Task completed', {
+        id: 'complete-task-toast',
+        action: {
+          label: 'Undo',
+          onClick: () =>
+            updateTask.mutate({ taskId: id, payload: { completed: false } }),
+        },
+      });
+    }
+  };
+
   return (
     <div className='border-b'>
       <div className='flex items-start gap-2 py-2'>
         <CheckButton
           completed={completed}
-          setCompleted={setCompleted}
+          onToggle={handleToggleComplete}
           className='mt-1'
         />
         <div className='w-full pr-16'>
@@ -46,17 +63,17 @@ export const TaskCard = ({
 
 const CheckButton = ({
   completed,
-  setCompleted,
+  onToggle,
   className,
 }: {
   completed: boolean;
-  setCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  onToggle: () => void;
   className?: string;
 }) => {
   return (
     <button
       className={cn('relative cursor-pointer', className)}
-      onClick={() => setCompleted(!completed)}
+      onClick={onToggle}
     >
       <CircleIcon
         className='size-5 stroke-1'
@@ -73,5 +90,20 @@ const CheckButton = ({
         strokeWidth={3}
       />
     </button>
+  );
+};
+
+export const TaskCardSkeleton = () => {
+  return (
+    <div className='border-b'>
+      <div className='my-2 flex items-start gap-2'>
+        <Skeleton className='size-5 rounded-full' />
+        <div className='w-full space-y-2 pr-16'>
+          <Skeleton className='h-5 w-64' />
+          <Skeleton className='h-3 w-96' />
+          <Skeleton className='h-2 w-10' />
+        </div>
+      </div>
+    </div>
   );
 };
