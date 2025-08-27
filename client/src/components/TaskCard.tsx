@@ -4,7 +4,8 @@ import type { Task } from '@/types/task';
 import { formatCustomDate } from '@/lib/date';
 import { Skeleton } from './ui/skeleton';
 import { useTaskMutations } from '@/hooks/useTasks';
-import { toast } from 'sonner';
+import { playSound } from '@/lib/sound';
+import { motion } from 'framer-motion';
 
 type TaskCardProps = Pick<
   Task,
@@ -21,11 +22,24 @@ export const TaskCard = ({
   const { updateTask } = useTaskMutations();
 
   const handleToggleComplete = () => {
+    playSound('/complete-sound.mp3');
     updateTask.mutate({ taskId: id, payload: { completed: !completed } });
   };
 
   return (
-    <div className='border-b'>
+    <motion.div
+      layout // This animates the layout shift when items are removed
+      exit={{
+        opacity: 0,
+        height: 0,
+        marginTop: 0,
+        marginBottom: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
+        transition: { duration: 0.3 },
+      }}
+      className='border-b'
+    >
       <div className='flex items-start gap-2 py-2'>
         <CheckButton
           completed={completed}
@@ -45,8 +59,13 @@ export const TaskCard = ({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
+};
+
+const circleVariants = {
+  rest: { scale: 1 },
+  tapped: { scale: 1.2 },
 };
 
 const CheckButton = ({
@@ -59,14 +78,18 @@ const CheckButton = ({
   className?: string;
 }) => {
   return (
-    <button
+    <motion.button
+      initial='rest'
+      whileTap='tapped'
       className={cn('relative cursor-pointer', className)}
       onClick={onToggle}
     >
-      <CircleIcon
-        className='size-5 stroke-1'
-        color='#999'
-      />
+      <motion.div variants={circleVariants}>
+        <CircleIcon
+          className='size-5 stroke-1'
+          color='#999'
+        />
+      </motion.div>
       <CheckIcon
         className={cn(
           'absolute top-1/2 left-1/2 size-[11px] -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100',
@@ -77,7 +100,7 @@ const CheckButton = ({
         color='#999'
         strokeWidth={3}
       />
-    </button>
+    </motion.button>
   );
 };
 

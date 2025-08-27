@@ -1,6 +1,7 @@
 import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
 import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
 import { useTasksQuery } from '@/hooks/useTasks';
+import { AnimatePresence } from 'framer-motion';
 
 const TodayPage = () => {
   const { tasks, isLoading } = useTasksQuery('today');
@@ -11,20 +12,22 @@ const TodayPage = () => {
         <PageTitle>Today</PageTitle>
       </PageHeader>
       <PageList>
-        {isLoading &&
-          Array.from({ length: 3 }).map((_, index) => (
-            <TaskCardSkeleton key={index} />
+        <AnimatePresence>
+          {isLoading &&
+            Array.from({ length: 3 }).map((_, index) => (
+              <TaskCardSkeleton key={index} />
+            ))}
+          {tasks?.map((task) => (
+            <TaskCard
+              key={task.id}
+              id={task.id}
+              title={task.title}
+              description={task.description}
+              completed={task.completed}
+              dueDate={task.dueDate}
+            />
           ))}
-        {tasks?.map((task) => (
-          <TaskCard
-            key={task.id}
-            id={task.id}
-            title={task.title}
-            description={task.description}
-            completed={task.completed}
-            dueDate={task.dueDate}
-          />
-        ))}
+        </AnimatePresence>
         {!isLoading && tasks?.length === 0 && (
           <p className='text-muted-foreground text-center text-sm'>
             No tasks for today. Enjoy your day!
