@@ -81,13 +81,30 @@ export const useTaskMutations = () => {
             return old;
           }
 
+          if (payload.completed !== undefined) {
+            return {
+              ...old,
+              data: {
+                ...old.data,
+                tasks: old.data.tasks.filter((task) => task.id !== taskId),
+              },
+            };
+          }
+
+          // Fallback for other types of updates (e.g., changing title)
           return {
             ...old,
             data: {
               ...old.data,
               tasks: old.data.tasks.map((task) =>
                 task.id === taskId
-                  ? { ...task, completed: !!payload.completed }
+                  ? ({
+                      ...task,
+                      ...payload,
+                      dueDate: payload.dueDate
+                        ? payload.dueDate.toISOString()
+                        : task.dueDate,
+                    } as Task)
                   : task,
               ),
             },

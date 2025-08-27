@@ -1,11 +1,13 @@
-import { CalendarIcon, CheckIcon, CircleIcon } from 'lucide-react';
+import { CalendarIcon, CheckIcon, CircleIcon, TrashIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types/task';
 import { formatCustomDate } from '@/lib/date';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTaskMutations } from '@/hooks/useTasks';
 import { playSound } from '@/lib/sound';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 type TaskCardProps = Pick<
   Task,
@@ -40,13 +42,13 @@ export const TaskCard = ({
       }}
       className='border-b'
     >
-      <div className='flex items-start gap-2 py-2'>
+      <div className='group/card flex items-start gap-2 py-2'>
         <CheckButton
           completed={completed}
           onToggle={handleToggleComplete}
           className='mt-1'
         />
-        <div className='w-full pr-16'>
+        <div className='w-[90%]'>
           <span className='truncate text-sm'>{title}</span>
           <p className='text-muted-foreground truncate text-xs'>
             {description}
@@ -58,6 +60,23 @@ export const TaskCard = ({
             </div>
           )}
         </div>
+        <ConfirmDialog
+          title='Delete Task?'
+          description={
+            <p>
+              The <span className='font-medium'>{title}</span> task will be
+              permanently deleted.
+            </p>
+          }
+          className='top-[20%]'
+        >
+          <Button
+            variant={'ghost'}
+            className='size-7 rounded-sm text-red-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-red-500'
+          >
+            <TrashIcon className='size-4' />
+          </Button>
+        </ConfirmDialog>
       </div>
     </motion.div>
   );
