@@ -54,29 +54,40 @@ export const useTaskMutations = () => {
       taskId: string;
       payload: UpdateTaskPayload;
     }) => taskService.updateTask(taskId, payload),
+    onSuccess: (_data, variables) => {
+      const { taskId, payload } = variables;
+      if (payload.completed) {
+        toast('Task completed', {
+          id: 'complete-task-toast',
+          action: {
+            label: 'Undo',
+            onClick: () =>
+              updateTask.mutate({ taskId, payload: { completed: false } }),
+          },
+        });
+      }
+    },
     onMutate: async ({ taskId, payload }) => {
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
 
-      const previousTasks = queryClient.getQueryData<{
+      const previousTasksData = queryClient.getQueriesData<{
         data: { tasks: Task[] };
-      }>(['tasks']);
-      queryClient.setQueryData<{ data: { tasks: Task[] } }>(
-        ['tasks'],
+      }>({ queryKey: ['tasks'] });
+
+      queryClient.setQueriesData<{ data: { tasks: Task[] } }>(
+        { queryKey: ['tasks'] },
         (old) => {
-          if (!old) return old;
+          if (!old?.data?.tasks) {
+            return old;
+          }
+
           return {
             ...old,
             data: {
               ...old.data,
               tasks: old.data.tasks.map((task) =>
                 task.id === taskId
-                  ? ({
-                      ...task,
-                      ...payload,
-                      dueDate: payload.dueDate
-                        ? payload.dueDate.toISOString()
-                        : task.dueDate,
-                    } as Task)
+                  ? { ...task, completed: !!payload.completed }
                   : task,
               ),
             },
@@ -84,17 +95,20 @@ export const useTaskMutations = () => {
         },
       );
 
-      return { previousTasks };
+      return { previousTasksData };
     },
     onError: (err, _variables, context) => {
-      if (context?.previousTasks) {
-        queryClient.setQueryData(['tasks'], context.previousTasks);
+      if (context?.previousTasksData) {
+        context.previousTasksData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
       }
+      console.log(err);
       const { message } = extractErrorDetails(err);
       toast.error(message || 'Failed to update task.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 

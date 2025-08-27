@@ -21,19 +21,7 @@ export const TaskCard = ({
   const { updateTask } = useTaskMutations();
 
   const handleToggleComplete = () => {
-    const isCompleting = !completed;
-    updateTask.mutate({ taskId: id, payload: { completed: isCompleting } });
-
-    if (isCompleting) {
-      toast('Task completed', {
-        id: 'complete-task-toast',
-        action: {
-          label: 'Undo',
-          onClick: () =>
-            updateTask.mutate({ taskId: id, payload: { completed: false } }),
-        },
-      });
-    }
+    updateTask.mutate({ taskId: id, payload: { completed: !completed } });
   };
 
   return (
