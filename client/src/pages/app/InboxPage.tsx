@@ -24,6 +24,11 @@ const InboxPage = () => {
             dueDate={dueDate}
           />
         ))}
+        {!isLoading && tasks?.length === 0 && (
+          <p className='text-muted-foreground text-center text-sm'>
+            No inbox tasks.
+          </p>
+        )}
       </PageList>
     </Page>
   );

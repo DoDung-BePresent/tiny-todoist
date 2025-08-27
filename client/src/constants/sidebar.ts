@@ -1,4 +1,4 @@
-import { Calendar1, Calendar2, DirectboxNotif } from "iconsax-reactjs";
+import { Calendar1, Calendar2, DirectboxNotif, TickCircle } from 'iconsax-reactjs';
 
 export const SIDEBAR_LINKS = [
   {
@@ -15,5 +15,10 @@ export const SIDEBAR_LINKS = [
     href: '/app/upcoming',
     label: 'Upcoming',
     icon: Calendar2,
-  }
+  },
+  {
+    href: '/app/completed',
+    label: 'Completed',
+    icon: TickCircle,
+  },
 ] as const;

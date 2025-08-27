@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { extractErrorDetails } from '@/lib/error';
 import type { CreateTaskPayload } from '@/types/task';
 
-export const useTasksQuery = () => {
+export const useTasksQuery = (filter?: string) => {
   const getTasksQuery = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => taskService.getTasks(),
+    queryKey: ['tasks', filter || 'inbox'],
+    queryFn: () => taskService.getTasks(filter),
   });
 
   return {

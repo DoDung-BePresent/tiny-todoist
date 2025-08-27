@@ -10,8 +10,12 @@ export const taskService = {
     return data;
   },
 
-  getTasks: async (): Promise<ApiResponse<{ tasks: Task[] }>> => {
-    const { data } = await api.get('/tasks');
+  getTasks: async (
+    filter?: string,
+  ): Promise<ApiResponse<{ tasks: Task[] }>> => {
+    const { data } = await api.get('/tasks', {
+      params: filter ? { filter } : {},
+    });
     return data;
   },
 

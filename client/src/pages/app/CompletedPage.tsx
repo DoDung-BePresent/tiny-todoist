@@ -2,13 +2,13 @@ import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
 import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
 import { useTasksQuery } from '@/hooks/useTasks';
 
-const UpcomingPage = () => {
-  const { tasks, isLoading } = useTasksQuery('upcoming');
+const CompletedPage = () => {
+  const { tasks, isLoading } = useTasksQuery('completed');
 
   return (
     <Page>
       <PageHeader>
-        <PageTitle>Upcoming</PageTitle>
+        <PageTitle>Completed</PageTitle>
       </PageHeader>
       <PageList>
         {isLoading &&
@@ -27,7 +27,7 @@ const UpcomingPage = () => {
         ))}
         {!isLoading && tasks?.length === 0 && (
           <p className='text-muted-foreground text-center text-sm'>
-            No upcoming tasks.
+            No completed tasks.
           </p>
         )}
       </PageList>
@@ -35,4 +35,4 @@ const UpcomingPage = () => {
   );
 };
 
-export default UpcomingPage;
+export default CompletedPage;

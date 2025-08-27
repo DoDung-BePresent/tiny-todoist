@@ -17,7 +17,9 @@ export const taskController = {
   }),
   getTasks: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
-    const tasks = await taskService.getTasksByUser(userId);
+    const filter = req.query.filter as string | undefined;
+
+    const tasks = await taskService.getTasksByUser(userId, filter);
 
     res.status(STATUS_CODE.OK).json({
       message: 'Tasks fetched successfully',

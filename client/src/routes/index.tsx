@@ -28,6 +28,7 @@ import type { RouteObject } from 'react-router';
 
 import { GuestRoute } from './components/GuestRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import CompletedPage from '@/pages/app/CompletedPage';
 
 const rootRoutesChildren: RouteObject[] = [
   {
@@ -57,6 +58,10 @@ const appRoutesChildren: RouteObject[] = [
   {
     path: 'upcoming',
     element: <UpcomingPage />,
+  },
+  {
+    path: 'completed',
+    element: <CompletedPage />,
   },
 ];
 
