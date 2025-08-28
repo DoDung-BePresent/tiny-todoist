@@ -1,4 +1,10 @@
-import { CalendarIcon, CheckIcon, CircleIcon, TrashIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  CheckIcon,
+  CircleIcon,
+  PenLineIcon,
+  TrashIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types/task';
 import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
@@ -8,10 +14,12 @@ import { playSound } from '@/lib/sound';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useState } from 'react';
+import { TaskForm } from './TaskForm';
 
 type TaskCardProps = Pick<
   Task,
-  'id' | 'title' | 'description' | 'completed' | 'dueDate'
+  'id' | 'title' | 'description' | 'completed' | 'dueDate' | 'priority'
 >;
 
 export const TaskCard = ({
@@ -20,8 +28,10 @@ export const TaskCard = ({
   description,
   completed,
   dueDate,
+  priority,
 }: TaskCardProps) => {
   const { updateTask, deleteTask } = useTaskMutations();
+  const [showTaskForm, setShowTaskForm] = useState(false);
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
@@ -31,6 +41,23 @@ export const TaskCard = ({
   const handleDelete = () => {
     deleteTask.mutate(id);
   };
+
+  if (showTaskForm) {
+    return (
+      <TaskForm
+        type='card'
+        id={id}
+        mode='edit'
+        defaultValues={{
+          title,
+          description: description ?? '',
+          dueDate: dueDate ? new Date(dueDate) : undefined,
+          priority,
+        }}
+        onDone={() => setShowTaskForm(false)}
+      />
+    );
+  }
 
   return (
     <motion.div
@@ -69,24 +96,33 @@ export const TaskCard = ({
             </div>
           )}
         </div>
-        <ConfirmDialog
-          title='Delete Task?'
-          description={
-            <p>
-              The <span className='font-medium text-black'>{title}</span> task
-              will be permanently deleted.
-            </p>
-          }
-          onConfirm={handleDelete}
-          className='top-[20%]'
-        >
+        <div className='flex items-center gap-1'>
           <Button
+            onClick={() => setShowTaskForm(true)}
             variant={'ghost'}
-            className='size-7 rounded-sm text-red-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-red-500'
+            className='size-7 rounded-sm text-blue-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-blue-500'
           >
-            <TrashIcon className='size-4' />
+            <PenLineIcon className='size-4' />
           </Button>
-        </ConfirmDialog>
+          <ConfirmDialog
+            title='Delete Task?'
+            description={
+              <p>
+                The <span className='font-medium text-black'>{title}</span> task
+                will be permanently deleted.
+              </p>
+            }
+            onConfirm={handleDelete}
+            className='top-[20%]'
+          >
+            <Button
+              variant={'ghost'}
+              className='size-7 rounded-sm text-red-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-red-500'
+            >
+              <TrashIcon className='size-4' />
+            </Button>
+          </ConfirmDialog>
+        </div>
       </div>
     </motion.div>
   );

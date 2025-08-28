@@ -14,11 +14,14 @@ import { Calendar } from './ui/calendar';
 import type { Priority } from '@/types/task';
 import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
 import { useState } from 'react';
+import { PRIORITIES } from '@/constants/task';
 
 type TaskFromProps = {
+  id?: string;
   type?: 'dialog' | 'card';
   className?: string;
   onDone?: () => void;
+  mode?: 'create' | 'edit';
   defaultValues?: {
     title: string;
     description: string;
@@ -34,28 +37,11 @@ const formSchema = z.object({
   priority: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
 });
 
-const PRIORITIES: { value: Priority; label: string }[] = [
-  {
-    value: 'P1',
-    label: 'Priority 1',
-  },
-  {
-    value: 'P2',
-    label: 'Priority 2',
-  },
-  {
-    value: 'P3',
-    label: 'Priority 3',
-  },
-  {
-    value: 'P4',
-    label: 'Priority 4',
-  },
-];
-
 export const TaskForm = ({
+  id,
   className,
   onDone,
+  mode = 'create',
   type = 'dialog',
   defaultValues = {
     title: '',
@@ -64,7 +50,7 @@ export const TaskForm = ({
     priority: undefined,
   },
 }: TaskFromProps) => {
-  const { createTask } = useTaskMutations();
+  const { createTask, updateTask } = useTaskMutations();
   const [showCalendar, setShowCalendar] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
 
@@ -75,12 +61,23 @@ export const TaskForm = ({
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createTask.mutate(values, {
-      onSuccess: () => {
-        form.reset();
-        onDone?.();
-      },
-    });
+    if (mode === 'create') {
+      createTask.mutate(values, {
+        onSuccess: () => {
+          form.reset();
+          onDone?.();
+        },
+      });
+    } else {
+      updateTask.mutate(
+        { taskId: id!, payload: values },
+        {
+          onSuccess: () => {
+            onDone?.();
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -303,7 +300,13 @@ export const TaskForm = ({
                 className='rounded-[6px]'
                 disabled={createTask.isPending || !form.formState.isValid}
               >
-                {createTask.isPending ? 'Adding...' : 'Add task'}
+                {createTask.isPending
+                  ? mode === 'edit'
+                    ? 'Saving...'
+                    : 'Adding...'
+                  : mode === 'edit'
+                    ? 'Save'
+                    : 'Add task'}
               </Button>
             </div>
           </form>
