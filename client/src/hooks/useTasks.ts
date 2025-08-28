@@ -91,7 +91,6 @@ export const useTaskMutations = () => {
             };
           }
 
-          // Fallback for other types of updates (e.g., changing title)
           return {
             ...old,
             data: {
@@ -120,9 +119,54 @@ export const useTaskMutations = () => {
           queryClient.setQueryData(key, data);
         });
       }
-      console.log(err);
       const { message } = extractErrorDetails(err);
       toast.error(message || 'Failed to update task.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+
+  const deleteTask = useMutation({
+    mutationFn: (taskId: string) => taskService.deleteTask(taskId),
+    onSuccess: () => {
+      toast.success('Task deleted successfully!');
+    },
+    onMutate: async (taskId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+
+      const previousTasksData = queryClient.getQueriesData<{
+        data: { tasks: Task[] };
+      }>({ queryKey: ['tasks'] });
+
+      queryClient.setQueriesData<{ data: { tasks: Task[] } }>(
+        {
+          queryKey: ['tasks'],
+        },
+        (old) => {
+          if (!old?.data?.tasks) {
+            return old;
+          }
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              tasks: old.data.tasks.filter((task) => task.id !== taskId),
+            },
+          };
+        },
+      );
+
+      return { previousTasksData };
+    },
+    onError: (err, _variables, context) => {
+      if (context?.previousTasksData) {
+        context.previousTasksData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+      const { message } = extractErrorDetails(err);
+      toast.error(message || 'Failed to delete task.');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -132,5 +176,6 @@ export const useTaskMutations = () => {
   return {
     createTask,
     updateTask,
+    deleteTask,
   };
 };

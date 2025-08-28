@@ -1,12 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,19 +9,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTaskMutations } from '@/hooks/useTasks';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon, FlagIcon } from 'lucide-react';
+import { CalendarIcon, FlagIcon, XIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import type { Priority } from '@/types/task';
-import { formatCustomDate } from '@/lib/date';
+import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
+import { useState } from 'react';
 
 type TaskFromProps = {
+  type?: 'dialog' | 'card';
   className?: string;
   onDone?: () => void;
+  defaultValues?: {
+    title: string;
+    description: string;
+    dueDate: Date | undefined;
+    priority: Priority | undefined;
+  };
 };
 
 const formSchema = z.object({
-  title: z.string().min(1, 'Title cannot be empty'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title cannot be empty'),
+  description: z.string().trim().optional(),
   dueDate: z.date().optional(),
   priority: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
 });
@@ -51,17 +53,25 @@ const PRIORITIES: { value: Priority; label: string }[] = [
   },
 ];
 
-export const TaskForm = ({ className, onDone }: TaskFromProps) => {
+export const TaskForm = ({
+  className,
+  onDone,
+  type = 'dialog',
+  defaultValues = {
+    title: '',
+    description: '',
+    dueDate: undefined,
+    priority: undefined,
+  },
+}: TaskFromProps) => {
   const { createTask } = useTaskMutations();
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showPriority, setShowPriority] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      dueDate: undefined,
-      priority: undefined,
-    },
+    defaultValues,
+    mode: 'onChange',
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -74,11 +84,27 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
   };
 
   return (
-    <Card className={cn('border-0 p-0 shadow-none', className)}>
-      <CardContent className='px-0 py-4'>
+    <Card
+      className={cn(
+        'border-0 p-0 shadow-none',
+        {
+          'rounded-sm border': type === 'card',
+        },
+        className,
+      )}
+    >
+      <CardContent
+        className={cn('px-0 py-4', {
+          'py-0': type === 'card',
+        })}
+      >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className='max-h-60 overflow-y-auto px-4 py-2 pt-0'>
+            <div
+              className={cn('max-h-60 overflow-y-auto px-4 pb-4', {
+                'px-2 pb-2': type === 'card',
+              })}
+            >
               <FormField
                 control={form.control}
                 name='title'
@@ -88,11 +114,15 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                       <Input
                         autoFocus
                         placeholder='Task name'
-                        className='border-0 px-1 pb-0 !text-xl font-semibold shadow-none focus-visible:ring-0'
+                        className={cn(
+                          'border-0 px-1 pb-0 !text-xl font-semibold shadow-none focus-visible:ring-0',
+                          {
+                            '!text-base': type === 'card',
+                          },
+                        )}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -108,7 +138,6 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -119,40 +148,58 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                   name='dueDate'
                   render={({ field }) => (
                     <FormItem>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              className={cn(
-                                'text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none',
-                              )}
-                            >
-                              <CalendarIcon
-                                strokeWidth={2}
-                                className='size-4'
-                              />
-                              {field.value
-                                ? formatCustomDate(field.value)
-                                : 'Date'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align='start'
-                          className='w-auto p-0'
+                      <div className='hover:bg-accent flex items-center rounded-[6px] border hover:text-black'>
+                        <Popover
+                          open={showCalendar}
+                          onOpenChange={setShowCalendar}
                         >
-                          <Calendar
-                            disabled={{ before: new Date() }}
-                            mode='single'
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <button
+                                type='button'
+                                className={cn(
+                                  'text-muted-foreground flex h-6.5 items-center gap-1.5 px-2 text-sm font-normal shadow-none',
+                                  field.value
+                                    ? `${getTaskDueDateColorClass(field.value, false)}`
+                                    : '',
+                                )}
+                              >
+                                <CalendarIcon
+                                  strokeWidth={2}
+                                  className='size-4'
+                                />
+                                {field.value
+                                  ? formatCustomDate(field.value)
+                                  : 'Date'}
+                              </button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align='start'
+                            className='w-auto p-0'
+                          >
+                            <Calendar
+                              disabled={{ before: new Date() }}
+                              mode='single'
+                              selected={field.value}
+                              onSelect={(e) => {
+                                field.onChange(e);
+                                setShowCalendar(false);
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {field.value && (
+                          <XIcon
+                            strokeWidth={2}
+                            className='text-muted-foreground mr-2 size-4 rounded-sm p-0.5 hover:bg-black/5'
+                            onClick={() => {
+                              form.resetField('dueDate');
+                            }}
                           />
-                        </PopoverContent>
-                      </Popover>
+                        )}
+                      </div>
                     </FormItem>
                   )}
                 />
@@ -161,64 +208,86 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                   name='priority'
                   render={({ field }) => (
                     <FormItem>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              className={cn(
-                                'text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none',
-                                {
-                                  'border-red-500 text-red-500 hover:bg-red-50 hover:text-red-500':
-                                    field.value === 'P1',
-                                  'border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-500':
-                                    field.value === 'P2',
-                                  'border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-500':
-                                    field.value === 'P3',
-                                },
-                              )}
-                            >
-                              <FlagIcon
-                                strokeWidth={2}
-                                className='size-4'
-                              />
-                              {PRIORITIES.find((p) => p.value === field.value)
-                                ?.label ?? 'Priority'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-[150px] p-0'>
-                          <div className='flex flex-col'>
-                            {PRIORITIES.map((p) => (
-                              <Button
-                                key={p.value}
-                                size='sm'
-                                variant='ghost'
-                                className='justify-start rounded-none font-normal'
-                                onClick={() => field.onChange(p.value)}
+                      <div className='hover:bg-accent flex items-center rounded-[6px] border hover:text-black'>
+                        <Popover
+                          open={showPriority}
+                          onOpenChange={setShowPriority}
+                        >
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <button
+                                type='button'
+                                className={cn(
+                                  'text-muted-foreground flex h-6.5 items-center gap-1.5 px-2 text-sm font-normal shadow-none',
+                                  {
+                                    'border-red-500 text-red-500 hover:bg-red-50 hover:text-red-500':
+                                      field.value === 'P1',
+                                    'border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-500':
+                                      field.value === 'P2',
+                                    'border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-500':
+                                      field.value === 'P3',
+                                  },
+                                )}
                               >
                                 <FlagIcon
                                   strokeWidth={2}
-                                  className={cn('size-4', {
-                                    'text-red-500': p.value === 'P1',
-                                    'text-amber-500': p.value === 'P2',
-                                    'text-blue-500': p.value === 'P3',
-                                  })}
+                                  className='size-4'
                                 />
-                                {p.label}
-                              </Button>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                                {PRIORITIES.find((p) => p.value === field.value)
+                                  ?.label ?? 'Priority'}
+                              </button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className='w-[150px] p-0'>
+                            <div className='flex flex-col'>
+                              {PRIORITIES.map((p) => (
+                                <Button
+                                  key={p.value}
+                                  size='sm'
+                                  variant='ghost'
+                                  className='justify-start rounded-none font-normal'
+                                  onClick={() => {
+                                    field.onChange(p.value);
+                                    setShowPriority(false);
+                                  }}
+                                >
+                                  <FlagIcon
+                                    strokeWidth={2}
+                                    className={cn('size-4', {
+                                      'text-red-500': p.value === 'P1',
+                                      'text-amber-500': p.value === 'P2',
+                                      'text-blue-500': p.value === 'P3',
+                                    })}
+                                  />
+                                  {p.label}
+                                </Button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        {field.value && (
+                          <XIcon
+                            strokeWidth={2}
+                            className='text-muted-foreground mr-2 size-4 rounded-sm p-0.5 hover:bg-black/5'
+                            onClick={() => {
+                              form.resetField('priority');
+                            }}
+                          />
+                        )}
+                      </div>
                     </FormItem>
                   )}
                 />
               </div>
             </div>
-            <div className='flex items-center justify-end gap-2 border-t-[1px] p-4 pb-0'>
+            <div
+              className={cn(
+                'flex items-center justify-end gap-2 border-t-[1px] p-4 pb-0',
+                {
+                  'p-2': type === 'card',
+                },
+              )}
+            >
               <Button
                 type='button'
                 variant='secondary'
@@ -232,7 +301,7 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
                 type='submit'
                 size='sm'
                 className='rounded-[6px]'
-                disabled={createTask.isPending}
+                disabled={createTask.isPending || !form.formState.isValid}
               >
                 {createTask.isPending ? 'Adding...' : 'Add task'}
               </Button>
@@ -243,105 +312,3 @@ export const TaskForm = ({ className, onDone }: TaskFromProps) => {
     </Card>
   );
 };
-
-// const DatePicker = () => {
-//   const [date, setDate] = useState<Date | undefined>(new Date());
-
-//   return (
-//     <Popover>
-//       <PopoverTrigger>
-//         <Button
-//           type='button'
-//           variant='outline'
-//           size='sm'
-//           className='text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none'
-//         >
-//           <CalendarIcon
-//             strokeWidth={2}
-//             className='size-4'
-//           />
-//           Date
-//         </Button>
-//       </PopoverTrigger>
-//       <PopoverContent
-//         side='right'
-//         align='center'
-//         sideOffset={0}
-//         className='w-[250px] border-0 px-0 shadow-[0_1px_8px_rgba(0,0,0,.08),0_0_1px_rgba(0,0,0,.3)]'
-//       >
-//         <div className='mb-2'>
-//           <button className='hover:bg-accent flex w-full items-center gap-2.5 px-4 py-1.5'>
-//             <Calendar1Icon className='size-5 stroke-1 text-green-500' />
-//             <span className='text-sm'>Today</span>
-//           </button>
-//           <button className='hover:bg-accent flex w-full items-center gap-2.5 px-4 py-1.5'>
-//             <SunIcon className='size-5 stroke-1 text-orange-500' />
-//             <span className='text-sm'>Tomorrow</span>
-//           </button>
-//         </div>
-//         <Separator />
-//         <div className=''>
-//           <Calendar
-//             mode='single'
-//             selected={date}
-//             onSelect={setDate}
-//             className='rounded-lg border-0'
-//           />
-//         </div>
-//       </PopoverContent>
-//     </Popover>
-//   );
-// };
-
-// const PriorityPicker = () => {
-//   return (
-//     <Popover>
-//       <PopoverTrigger>
-//         <Button
-//           type='button'
-//           variant='outline'
-//           size='sm'
-//           className='text-muted-foreground h-7 rounded-[6px] text-sm font-normal shadow-none'
-//         >
-//           <FlagIcon
-//             strokeWidth={2}
-//             className='size-4'
-//           />
-//           Priority
-//         </Button>
-//       </PopoverTrigger>
-//       <PopoverContent className='w-[130px] p-0'>
-//         <div className='flex flex-col'>
-//           <Button
-//             size='sm'
-//             variant='ghost'
-//             className='rounded-none font-normal'
-//           >
-//             Priority 1
-//           </Button>
-//           <Button
-//             size='sm'
-//             variant='ghost'
-//             className='rounded-none font-normal'
-//           >
-//             Priority 2
-//           </Button>
-//           <Button
-//             size='sm'
-//             variant='ghost'
-//             className='rounded-none font-normal'
-//           >
-//             Priority 3
-//           </Button>
-//           <Button
-//             size='sm'
-//             variant='ghost'
-//             className='rounded-none font-normal'
-//           >
-//             Priority 4
-//           </Button>
-//         </div>
-//       </PopoverContent>
-//     </Popover>
-//   );
-// };

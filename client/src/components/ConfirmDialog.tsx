@@ -5,6 +5,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogOverlay,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
@@ -16,7 +17,9 @@ type ConfirmDialogProps = {
   description?: React.ReactElement;
   children: React.ReactNode;
   onCancel?: () => void;
-  onSubmit?: () => void;
+  onConfirm?: () => void;
+  okLabel?: string;
+  cancelLabel?: string;
   className?: string;
 };
 
@@ -25,34 +28,45 @@ export const ConfirmDialog = ({
   description,
   children,
   onCancel,
-  onSubmit,
+  onConfirm,
+  okLabel = 'Save Changes',
+  cancelLabel = 'Cancel',
   className,
 }: ConfirmDialogProps) => {
   return (
     <Dialog>
+      <DialogOverlay className='bg-black/50' />
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent
-        className={cn('', className)}
+        className={cn('p-4', className)}
         showCloseButton={false}
       >
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle className='text-base'>{title}</DialogTitle>
+          {description && (
+            <DialogDescription className='text-sm'>
+              {description}
+            </DialogDescription>
+          )}
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
             <Button
-              variant='outline'
+              size='sm'
+              variant='secondary'
+              className='rounded-sm text-xs'
               onClick={onCancel}
             >
-              Cancel
+              {cancelLabel}
             </Button>
           </DialogClose>
           <Button
+            size='sm'
             type='submit'
-            onClick={onSubmit}
+            className='rounded-sm text-xs'
+            onClick={onConfirm}
           >
-            Save changes
+            {okLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

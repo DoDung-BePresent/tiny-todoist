@@ -1,7 +1,7 @@
 import { CalendarIcon, CheckIcon, CircleIcon, TrashIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types/task';
-import { formatCustomDate } from '@/lib/date';
+import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTaskMutations } from '@/hooks/useTasks';
 import { playSound } from '@/lib/sound';
@@ -21,16 +21,20 @@ export const TaskCard = ({
   completed,
   dueDate,
 }: TaskCardProps) => {
-  const { updateTask } = useTaskMutations();
+  const { updateTask, deleteTask } = useTaskMutations();
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
     updateTask.mutate({ taskId: id, payload: { completed: !completed } });
   };
 
+  const handleDelete = () => {
+    deleteTask.mutate(id);
+  };
+
   return (
     <motion.div
-      layout // This animates the layout shift when items are removed
+      // layout
       exit={{
         opacity: 0,
         height: 0,
@@ -54,7 +58,12 @@ export const TaskCard = ({
             {description}
           </p>
           {dueDate && (
-            <div className='text-muted-foreground mt-1 flex items-center gap-1'>
+            <div
+              className={cn(
+                'text-muted-foreground mt-1 flex items-center gap-1',
+                getTaskDueDateColorClass(new Date(dueDate), completed),
+              )}
+            >
               <CalendarIcon className='size-3' />
               <span className='text-xs'>{formatCustomDate(dueDate)}</span>
             </div>
@@ -64,10 +73,11 @@ export const TaskCard = ({
           title='Delete Task?'
           description={
             <p>
-              The <span className='font-medium'>{title}</span> task will be
-              permanently deleted.
+              The <span className='font-medium text-black'>{title}</span> task
+              will be permanently deleted.
             </p>
           }
+          onConfirm={handleDelete}
           className='top-[20%]'
         >
           <Button
