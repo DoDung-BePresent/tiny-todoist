@@ -15,6 +15,6 @@ export const PRIORITIES: { value: Priority; label: string }[] = [
   },
   {
     value: 'P4',
-    label: 'Priority 4',
+    label: 'Priority',
   },
 ];

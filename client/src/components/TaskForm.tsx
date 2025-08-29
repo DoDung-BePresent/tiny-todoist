@@ -33,7 +33,7 @@ type TaskFromProps = {
 const formSchema = z.object({
   title: z.string().trim().min(1, 'Title cannot be empty'),
   description: z.string().trim().optional(),
-  dueDate: z.date().optional(),
+  dueDate: z.date().nullable().optional(),
   priority: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
 });
 
@@ -178,7 +178,7 @@ export const TaskForm = ({
                             <Calendar
                               disabled={{ before: new Date() }}
                               mode='single'
-                              selected={field.value}
+                              selected={field.value ? field.value : undefined}
                               onSelect={(e) => {
                                 field.onChange(e);
                                 setShowCalendar(false);
@@ -192,7 +192,10 @@ export const TaskForm = ({
                             strokeWidth={2}
                             className='text-muted-foreground mr-2 size-4 rounded-sm p-0.5 hover:bg-black/5'
                             onClick={() => {
-                              form.resetField('dueDate');
+                              form.setValue('dueDate', null as any, {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
                             }}
                           />
                         )}
@@ -262,12 +265,15 @@ export const TaskForm = ({
                             </div>
                           </PopoverContent>
                         </Popover>
-                        {field.value && (
+                        {field.value && field.value !== 'P4' && (
                           <XIcon
                             strokeWidth={2}
                             className='text-muted-foreground mr-2 size-4 rounded-sm p-0.5 hover:bg-black/5'
                             onClick={() => {
-                              form.resetField('priority');
+                              form.setValue('priority', 'P4', {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
                             }}
                           />
                         )}

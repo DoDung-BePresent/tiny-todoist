@@ -55,6 +55,7 @@ export const TaskCard = ({
           priority,
         }}
         onDone={() => setShowTaskForm(false)}
+        className='mt-2'
       />
     );
   }

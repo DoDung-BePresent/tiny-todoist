@@ -15,7 +15,7 @@ export type Task = {
 export type CreateTaskPayload = {
   title: string;
   description?: string;
-  dueDate?: Date;
+  dueDate?: Date | null;
   priority?: Priority;
 };
 

@@ -17,7 +17,6 @@ export function getTaskDueDateColorClass(
   completed?: boolean,
 ): string | undefined {
   if (dueDate === null || completed === undefined) return;
-  console.log(dueDate);
   if (isBefore(dueDate, startOfToday()) && !completed) {
     return 'text-red-500';
   }
