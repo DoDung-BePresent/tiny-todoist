@@ -1,3 +1,7 @@
+import { useProjectMutation } from '@/hooks/useProject';
+import { useState } from 'react';
+import { ProjectDialog } from './ProjectDialog';
+import type { Project } from '@/types/project';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,42 +10,54 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PenLineIcon, TrashIcon } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
-import { useProjectMutation } from '@/hooks/useProject';
-import { useState } from 'react';
 
 export const ProjectDropdownMenu = ({
-  id,
-  name,
+  project,
   children,
 }: {
-  id: string;
-  name: string;
+  project: Project;
   children: React.ReactNode;
 }) => {
   const { deleteProject } = useProjectMutation();
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDelete = () => {
-    deleteProject.mutate(id);
+    deleteProject.mutate(project.id);
   };
+
+  const handleSelect = (callback: () => void) => {
+    callback();
+    setDropdownOpen(false);
+  };
+
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu
+        open={dropdownOpen}
+        onOpenChange={setDropdownOpen}
+      >
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent
           align='start'
           side='right'
           className='w-40'
         >
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              handleSelect(() => setShowEditDialog(true));
+            }}
+          >
             <PenLineIcon />
             Edit
           </DropdownMenuItem>
-
           <DropdownMenuItem
             className='!text-red-500'
-            onSelect={() => {
-              setShowConfirm(true);
+            onSelect={(e) => {
+              e.preventDefault();
+              handleSelect(() => setShowDeleteConfirm(true));
             }}
           >
             <TrashIcon className='text-red-500' />
@@ -49,14 +65,22 @@ export const ProjectDropdownMenu = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <ProjectDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        mode='edit'
+        project={project}
+      />
+
       <ConfirmDialog
-        open={showConfirm}
-        onOpenChange={setShowConfirm}
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
         title='Delete Project?'
         description={
           <p>
-            The <span className='font-medium text-black'>{name}</span> project
-            and all of its tasks will be permanently deleted.
+            The <span className='font-medium text-black'>{project.name}</span>{' '}
+            project and all of its tasks will be permanently deleted.
           </p>
         }
         onConfirm={handleDelete}

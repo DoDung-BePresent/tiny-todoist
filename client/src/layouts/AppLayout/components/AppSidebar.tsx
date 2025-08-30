@@ -168,10 +168,7 @@ export const AppSidebar = () => {
                           color={project.color}
                         />
                         <span className='flex-1'>{project.name}</span>
-                        <ProjectDropdownMenu
-                          id={project.id}
-                          name={project.name}
-                        >
+                        <ProjectDropdownMenu project={project}>
                           <Button
                             variant='ghost'
                             className='text-muted-foreground size-7 rounded-sm opacity-0 group-hover/side-bar-button:opacity-100 hover:bg-black/5 data-[state=open]:bg-black/5 data-[state=open]:opacity-100'

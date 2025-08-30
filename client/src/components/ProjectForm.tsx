@@ -21,6 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { useProjectMutation } from '@/hooks/useProject';
+import type { Project } from '@/types/project';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, 'Project name cannot be empty'),
@@ -33,28 +34,50 @@ const formSchema = z.object({
 type ProjectFormProps = {
   className?: string;
   onDone?: () => void;
+  mode?: 'create' | 'edit';
+  project?: Project;
 };
 
-export const ProjectForm = ({ className, onDone }: ProjectFormProps) => {
-  const { createProject } = useProjectMutation();
+export const ProjectForm = ({
+  className,
+  onDone,
+  mode = 'create',
+  project,
+}: ProjectFormProps) => {
+  const { createProject, updateProject } = useProjectMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      color: '#808080',
-      isFavorite: false,
+      name: project?.name ?? '',
+      color: project?.color ?? '#808080',
+      isFavorite: project?.isFavorite ?? false,
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createProject.mutate(values, {
-      onSuccess: () => {
-        form.reset();
-        onDone?.();
-      },
-    });
+    if (mode === 'edit' && project) {
+      updateProject.mutate(
+        { projectId: project.id, payload: values },
+        {
+          onSuccess: () => {
+            onDone?.();
+          },
+        },
+      );
+    } else {
+      createProject.mutate(values, {
+        onSuccess: () => {
+          form.reset();
+          onDone?.();
+        },
+      });
+    }
   };
+
+  const isPending =
+    mode === 'edit' ? updateProject.isPending : createProject.isPending;
+
   return (
     <div className={cn('', className)}>
       <Form {...form}>
@@ -155,9 +178,9 @@ export const ProjectForm = ({ className, onDone }: ProjectFormProps) => {
               type='submit'
               size='sm'
               className='min-w-16 rounded-[6px]'
-              disabled={createProject.isPending || !form.formState.isValid}
+              disabled={isPending || !form.formState.isValid}
             >
-              {createProject.isPending ? 'Adding...' : 'Add'}
+              {isPending ? 'Saving...' : mode === 'edit' ? 'Save' : 'Add'}
             </Button>
           </div>
         </form>
