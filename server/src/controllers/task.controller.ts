@@ -6,9 +6,8 @@ import { STATUS_CODE } from '@/constants/error.constant';
 export const taskController = {
   createTask: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
-    const validatedBody = taskValidation.createTaskSchema.parse(req.body);
 
-    const task = await taskService.createTask(userId, validatedBody);
+    const task = await taskService.createTask(userId, req.body);
 
     res.status(STATUS_CODE.CREATED).json({
       message: 'Task created successfully',
@@ -36,7 +35,7 @@ export const taskController = {
   }),
   getTask: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
-    const { id: taskId } = taskValidation.taskIdSchema.parse(req.params);
+    const { id: taskId } = req.params;
 
     const task = await taskService.getTaskById(taskId, userId);
 
@@ -47,14 +46,9 @@ export const taskController = {
   }),
   updateTask: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
-    const { id: taskId } = taskValidation.taskIdSchema.parse(req.params);
-    const validatedBody = taskValidation.updateTaskSchema.parse(req.body);
+    const { id: taskId } = req.params;
 
-    const updatedTask = await taskService.updateTask(
-      taskId,
-      userId,
-      validatedBody,
-    );
+    const updatedTask = await taskService.updateTask(taskId, userId, req.body);
 
     res.status(STATUS_CODE.OK).json({
       message: 'Task updated successfully',
@@ -63,7 +57,7 @@ export const taskController = {
   }),
   deleteTask: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
-    const { id: taskId } = taskValidation.taskIdSchema.parse(req.params);
+    const { id: taskId } = req.params;
 
     await taskService.deleteTask(taskId, userId);
 

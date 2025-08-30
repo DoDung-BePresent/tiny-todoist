@@ -2,9 +2,13 @@ import { CreateTaskPayload, UpdateTaskPayload } from '@/types/task.types';
 import { NotFoundError } from '@/lib/error';
 import prisma from '@/lib/prisma';
 import { endOfDay, startOfDay } from 'date-fns';
+import { projectService } from './project.service';
 
 export const taskService = {
   createTask: async (userId: string, data: CreateTaskPayload) => {
+    if (data.projectId) {
+      await projectService.getProjectById(data.projectId, userId);
+    }
     const task = await prisma.task.create({
       data: {
         ...data,
@@ -122,6 +126,10 @@ export const taskService = {
     data: UpdateTaskPayload,
   ) => {
     await taskService.getTaskById(taskId, userId);
+
+    if (data.projectId) {
+      await projectService.getProjectById(data.projectId, userId);
+    }
 
     const updatedTask = await prisma.task.update({
       where: {

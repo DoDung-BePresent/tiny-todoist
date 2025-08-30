@@ -5,6 +5,7 @@ export type CreateTaskPayload = {
   description?: string | null;
   dueDate?: Date | null;
   priority?: Priority;
+  projectId?: string;
 };
 
 export type UpdateTaskPayload = Partial<{
@@ -13,4 +14,5 @@ export type UpdateTaskPayload = Partial<{
   completed: boolean;
   dueDate: Date | null;
   priority: Priority;
+  projectId: string;
 }>;
