@@ -1,7 +1,13 @@
 /**
  * Node modules
  */
-import { Bell } from 'lucide-react';
+import {
+  Bell,
+  ChevronRightIcon,
+  EllipsisIcon,
+  HashIcon,
+  PlusIcon,
+} from 'lucide-react';
 import { AddCircle } from 'iconsax-reactjs';
 import { Link, useLocation } from 'react-router';
 
@@ -19,6 +25,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
@@ -31,10 +38,19 @@ import { HelpButton } from '@/components/HelpButton';
 import { UserButton } from '@/components/UserButton';
 import { TaskDialog } from '@/components/TaskDialog';
 import { useTaskStatsQuery } from '@/hooks/useTasks';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ProjectDialog } from '@/components/ProjectDialog';
+import { useProjectsQuery } from '@/hooks/useProject';
+import { ProjectDropdownMenu } from '@/components/ProjectDropdownMenu';
 
 export const AppSidebar = () => {
   const location = useLocation();
   const { stats } = useTaskStatsQuery();
+  const { projects } = useProjectsQuery();
 
   const getCountForLink = (href: string) => {
     if (href.includes('today')) return stats?.today;
@@ -118,6 +134,59 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <Collapsible className='group/collapsible'>
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary h-9 !text-sm group-data-[state=open]/collapsible:bg-[#ffefe5]'>
+                My Projects
+                <ProjectDialog>
+                  <Button
+                    variant='ghost'
+                    className='text-muted-foreground ml-auto size-7 rounded-sm hover:bg-black/5'
+                  >
+                    <PlusIcon />
+                  </Button>
+                </ProjectDialog>
+                <CollapsibleTrigger>
+                  <Button
+                    variant='ghost'
+                    className='text-muted-foreground size-7 rounded-sm hover:bg-black/5'
+                  >
+                    <ChevronRightIcon className='text-muted-foreground transition-all duration-150 ease-in-out group-data-[state=open]/collapsible:rotate-90' />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {projects?.map((project) => (
+                    <SidebarMenuItem key={project.id}>
+                      <SidebarMenuButton className='group/side-bar-button h-9 px-2'>
+                        <HashIcon
+                          strokeWidth={1.5}
+                          color={project.color}
+                        />
+                        <span className='flex-1'>{project.name}</span>
+                        <ProjectDropdownMenu
+                          id={project.id}
+                          name={project.name}
+                        >
+                          <Button
+                            variant='ghost'
+                            className='text-muted-foreground size-7 rounded-sm opacity-0 group-hover/side-bar-button:opacity-100 hover:bg-black/5 data-[state=open]:bg-black/5 data-[state=open]:opacity-100'
+                          >
+                            <EllipsisIcon strokeWidth={1.5} />
+                          </Button>
+                        </ProjectDropdownMenu>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
       <SidebarFooter className='!px-3'>
         <HelpButton />

@@ -36,7 +36,7 @@ export const ConfirmDialog = ({
   return (
     <Dialog>
       <DialogOverlay className='bg-black/50' />
-      <DialogTrigger>{children}</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className={cn('p-4', className)}
         showCloseButton={false}

@@ -9,11 +9,13 @@ import { Router } from 'express';
 import userRoutes from '@/routes/user.route';
 import taskRouter from '@/routes/task.route';
 import authRouter from '@/routes/auth.route';
+import projectRouter from '@/routes/project.route';
 
 const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/users', userRoutes);
 router.use('/tasks', taskRouter);
+router.use('/projects', projectRouter);
 
 export default router;

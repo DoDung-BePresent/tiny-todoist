@@ -135,7 +135,7 @@ export const taskService = {
   deleteTask: async (taskId: string, userId: string) => {
     await taskService.getTaskById(taskId, userId);
 
-    await prisma.task.delete({
+    return await prisma.task.delete({
       where: {
         id: taskId,
       },
