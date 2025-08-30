@@ -32,6 +32,7 @@ export const TaskCard = ({
 }: TaskCardProps) => {
   const { updateTask, deleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
@@ -61,71 +62,77 @@ export const TaskCard = ({
   }
 
   return (
-    <motion.div
-      // layout
-      exit={{
-        opacity: 0,
-        height: 0,
-        marginTop: 0,
-        marginBottom: 0,
-        paddingTop: 0,
-        paddingBottom: 0,
-        transition: { duration: 0.3 },
-      }}
-      className='border-b'
-    >
-      <div className='group/card flex items-start gap-2 py-2'>
-        <CheckButton
-          completed={completed}
-          onToggle={handleToggleComplete}
-          className='mt-1'
-        />
-        <div className='w-[90%]'>
-          <span className='truncate text-sm'>{title}</span>
-          <p className='text-muted-foreground truncate text-xs'>
-            {description}
-          </p>
-          {dueDate && (
-            <div
-              className={cn(
-                'text-muted-foreground mt-1 flex items-center gap-1',
-                getTaskDueDateColorClass(new Date(dueDate), completed),
-              )}
+    <>
+      <motion.div
+        // layout
+        exit={{
+          opacity: 0,
+          height: 0,
+          marginTop: 0,
+          marginBottom: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+          transition: { duration: 0.3 },
+        }}
+        className='border-b'
+      >
+        <div className='group/card flex items-start gap-2 py-2'>
+          <CheckButton
+            completed={completed}
+            onToggle={handleToggleComplete}
+            className='mt-1'
+          />
+          <div className='w-[90%]'>
+            <span className='truncate text-sm'>{title}</span>
+            <p className='text-muted-foreground truncate text-xs'>
+              {description}
+            </p>
+            {dueDate && (
+              <div
+                className={cn(
+                  'text-muted-foreground mt-1 flex items-center gap-1',
+                  getTaskDueDateColorClass(new Date(dueDate), completed),
+                )}
+              >
+                <CalendarIcon className='size-3' />
+                <span className='text-xs'>{formatCustomDate(dueDate)}</span>
+              </div>
+            )}
+          </div>
+          <div className='flex items-center gap-1'>
+            <Button
+              onClick={() => setShowTaskForm(true)}
+              variant={'ghost'}
+              className='size-7 rounded-sm text-blue-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-blue-500'
             >
-              <CalendarIcon className='size-3' />
-              <span className='text-xs'>{formatCustomDate(dueDate)}</span>
-            </div>
-          )}
-        </div>
-        <div className='flex items-center gap-1'>
-          <Button
-            onClick={() => setShowTaskForm(true)}
-            variant={'ghost'}
-            className='size-7 rounded-sm text-blue-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-blue-500'
-          >
-            <PenLineIcon className='size-4' />
-          </Button>
-          <ConfirmDialog
-            title='Delete Task?'
-            description={
-              <p>
-                The <span className='font-medium text-black'>{title}</span> task
-                will be permanently deleted.
-              </p>
-            }
-            onConfirm={handleDelete}
-            className='top-[20%]'
-          >
+              <PenLineIcon className='size-4' />
+            </Button>
+
             <Button
               variant={'ghost'}
+              onClick={() => setShowConfirm(true)}
               className='size-7 rounded-sm text-red-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-red-500'
             >
               <TrashIcon className='size-4' />
             </Button>
-          </ConfirmDialog>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+      <ConfirmDialog
+        open={showConfirm}
+        onOpenChange={setShowConfirm}
+        title='Delete Task?'
+        description={
+          <p>
+            The <span className='font-medium text-black'>{title}</span> task
+            will be permanently deleted.
+          </p>
+        }
+        onConfirm={handleDelete}
+        className='top-[20%]'
+        okLabel='Delete'
+      />
+    </>
   );
 };
 

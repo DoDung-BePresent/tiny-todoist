@@ -15,7 +15,8 @@ import { cn } from '@/lib/utils';
 type ConfirmDialogProps = {
   title: string;
   description?: React.ReactElement;
-  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onCancel?: () => void;
   onConfirm?: () => void;
   okLabel?: string;
@@ -26,17 +27,29 @@ type ConfirmDialogProps = {
 export const ConfirmDialog = ({
   title,
   description,
-  children,
+  open,
+  onOpenChange,
   onCancel,
   onConfirm,
   okLabel = 'Save Changes',
   cancelLabel = 'Cancel',
   className,
 }: ConfirmDialogProps) => {
+  const handleConfirm = () => {
+    onConfirm?.();
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    onCancel?.();
+    onOpenChange(false);
+  };
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogOverlay className='bg-black/50' />
-      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className={cn('p-4', className)}
         showCloseButton={false}
@@ -55,7 +68,7 @@ export const ConfirmDialog = ({
               size='sm'
               variant='secondary'
               className='rounded-sm text-xs'
-              onClick={onCancel}
+              onClick={handleCancel}
             >
               {cancelLabel}
             </Button>
@@ -64,7 +77,7 @@ export const ConfirmDialog = ({
             size='sm'
             type='submit'
             className='rounded-sm text-xs'
-            onClick={onConfirm}
+            onClick={handleConfirm}
           >
             {okLabel}
           </Button>
