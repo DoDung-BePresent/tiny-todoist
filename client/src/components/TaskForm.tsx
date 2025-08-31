@@ -11,23 +11,18 @@ import { useTaskMutations } from '@/hooks/useTasks';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { CalendarIcon, FlagIcon, XIcon } from 'lucide-react';
 import { Calendar } from './ui/calendar';
-import type { Priority } from '@/types/task';
+import type { Priority, Task } from '@/types/task';
 import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
 import { useState } from 'react';
 import { PRIORITIES } from '@/constants/task';
 
 type TaskFromProps = {
-  id?: string;
   type?: 'dialog' | 'card';
   className?: string;
   onDone?: () => void;
   mode?: 'create' | 'edit';
-  defaultValues?: {
-    title: string;
-    description: string;
-    dueDate: Date | undefined;
-    priority: Priority | undefined;
-  };
+  task?: Task;
+  initialValues?: Partial<z.infer<typeof formSchema>>;
 };
 
 const formSchema = z.object({
@@ -38,17 +33,12 @@ const formSchema = z.object({
 });
 
 export const TaskForm = ({
-  id,
   className,
   onDone,
   mode = 'create',
   type = 'dialog',
-  defaultValues = {
-    title: '',
-    description: '',
-    dueDate: undefined,
-    priority: undefined,
-  },
+  task,
+  initialValues,
 }: TaskFromProps) => {
   const { createTask, updateTask } = useTaskMutations();
   const [showCalendar, setShowCalendar] = useState(false);
@@ -56,7 +46,15 @@ export const TaskForm = ({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues:
+      mode === 'edit'
+        ? {
+            title: task?.title ?? '',
+            description: task?.description ?? '',
+            dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
+            priority: task?.priority,
+          }
+        : initialValues,
     mode: 'onChange',
   });
 
@@ -70,7 +68,7 @@ export const TaskForm = ({
       });
     } else {
       updateTask.mutate(
-        { taskId: id!, payload: values },
+        { taskId: task!.id, payload: values },
         {
           onSuccess: () => {
             onDone?.();

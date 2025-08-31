@@ -17,19 +17,13 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useState } from 'react';
 import { TaskForm } from './TaskForm';
 
-type TaskCardProps = Pick<
-  Task,
-  'id' | 'title' | 'description' | 'completed' | 'dueDate' | 'priority'
->;
+type TaskCardProps = {
+  task: Task;
+};
 
-export const TaskCard = ({
-  id,
-  title,
-  description,
-  completed,
-  dueDate,
-  priority,
-}: TaskCardProps) => {
+export const TaskCard = ({ task }: TaskCardProps) => {
+  const { id, title, description, completed, dueDate, priority } = task;
+
   const { updateTask, deleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -47,14 +41,8 @@ export const TaskCard = ({
     return (
       <TaskForm
         type='card'
-        id={id}
         mode='edit'
-        defaultValues={{
-          title,
-          description: description ?? '',
-          dueDate: dueDate ? new Date(dueDate) : undefined,
-          priority,
-        }}
+        task={task}
         onDone={() => setShowTaskForm(false)}
         className='mt-2'
       />

@@ -23,11 +23,7 @@ const TodayPage = () => {
           {tasks?.map((task) => (
             <TaskCard
               key={task.id}
-              id={task.id}
-              title={task.title}
-              description={task.description}
-              completed={task.completed}
-              dueDate={task.dueDate}
+              task={task}
             />
           ))}
         </AnimatePresence>
@@ -46,12 +42,10 @@ const TodayPage = () => {
         {showTaskForm && (
           <TaskForm
             type='card'
+            mode='create'
             className='mt-2'
-            defaultValues={{
-              title: '',
-              description: '',
+            initialValues={{
               dueDate: new Date(),
-              priority: undefined,
             }}
             onDone={() => setShowTaskForm(false)}
           />

@@ -20,19 +20,12 @@ const InboxPage = () => {
             Array.from({ length: 5 }).map((_, index) => (
               <TaskCardSkeleton key={index} />
             ))}
-          {tasks?.map(
-            ({ id, title, description, completed, dueDate, priority }) => (
-              <TaskCard
-                key={id}
-                id={id}
-                title={title}
-                description={description}
-                completed={completed}
-                dueDate={dueDate}
-                priority={priority}
-              />
-            ),
-          )}
+          {tasks?.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+            />
+          ))}
         </AnimatePresence>
         {tasks && !showTaskForm && tasks?.length > 0 && (
           <button
@@ -49,6 +42,7 @@ const InboxPage = () => {
         {showTaskForm && (
           <TaskForm
             type='card'
+            mode='create'
             className='mt-2'
             onDone={() => setShowTaskForm(false)}
           />

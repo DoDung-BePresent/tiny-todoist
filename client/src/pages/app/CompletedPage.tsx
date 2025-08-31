@@ -20,11 +20,7 @@ const CompletedPage = () => {
           {tasks?.map((task) => (
             <TaskCard
               key={task.id}
-              id={task.id}
-              title={task.title}
-              description={task.description}
-              completed={task.completed}
-              dueDate={task.dueDate}
+              task={task}
             />
           ))}
         </AnimatePresence>
