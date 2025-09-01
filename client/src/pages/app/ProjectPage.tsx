@@ -1,6 +1,8 @@
 /**
  * Node modules
  */
+import { useState } from 'react';
+import { PlusIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { AnimatePresence } from 'framer-motion';
 
@@ -15,21 +17,35 @@ import { useTasksQuery } from '@/hooks/useTasks';
 import projectNotFoundImage from '@/assets/project-not-found.png';
 
 /**
+ * Hooks
+ */
+import { useAuth } from '@/hooks/useAuth';
+
+/**
  * Components
  */
 import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
-import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
+import {
+  Page,
+  PageHeader,
+  PageList,
+  PageSkeleton,
+  PageTitle,
+} from '@/components/Page';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { TaskForm } from '@/components/TaskForm';
 
 const ProjectPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const { tasks, isLoading } = useTasksQuery(id);
+  const [showTaskForm, setShowTaskForm] = useState(false);
+
   const title = id?.split('-')[0];
+  const projectId = id?.split('-')[1];
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <PageSkeleton />;
   }
 
   if (!tasks && !isLoading) {
@@ -75,6 +91,7 @@ const ProjectPage = () => {
     );
   }
 
+  //FIXME: Taskform van mo neu chuyen giua cac project khac nhau!
   return (
     <Page>
       <PageHeader>
@@ -93,6 +110,29 @@ const ProjectPage = () => {
             />
           ))}
         </AnimatePresence>
+        {tasks && !showTaskForm && (
+          <button
+            onClick={() => setShowTaskForm(true)}
+            className='group/button hover:text-primary text-muted-foreground flex w-full cursor-pointer items-center gap-2 p-1.5 px-0.5 py-2.5 text-sm'
+          >
+            <PlusIcon
+              className='text-primary group-hover/button:bg-primary size-5.5 rounded-full p-[1px] group-hover/button:text-white'
+              strokeWidth={1.5}
+            />
+            Add task
+          </button>
+        )}
+        {showTaskForm && (
+          <TaskForm
+            type='card'
+            mode='create'
+            initialValues={{
+              projectId,
+            }}
+            className='mt-2'
+            onDone={() => setShowTaskForm(false)}
+          />
+        )}
       </PageList>
     </Page>
   );
