@@ -22,6 +22,21 @@ export const taskService = {
       createdAt: 'desc' as const,
     };
 
+    if (filter?.split('-')[1]) {
+      const projectId = filter.split('-')[1];
+
+      await projectService.getProjectById(projectId, userId);
+
+      return prisma.task.findMany({
+        where: {
+          userId,
+          projectId,
+          completed: false,
+        },
+        orderBy,
+      });
+    }
+
     switch (filter) {
       case 'today':
         return prisma.task.findMany({
@@ -59,6 +74,7 @@ export const taskService = {
           where: {
             userId,
             completed: false,
+            projectId: null,
           },
           orderBy,
         });

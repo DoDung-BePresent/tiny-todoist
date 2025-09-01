@@ -29,6 +29,7 @@ import type { RouteObject } from 'react-router';
 import { GuestRoute } from './components/GuestRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import CompletedPage from '@/pages/app/CompletedPage';
+import ProjectPage from '@/pages/app/ProjectPage';
 
 const rootRoutesChildren: RouteObject[] = [
   {
@@ -62,6 +63,10 @@ const appRoutesChildren: RouteObject[] = [
   {
     path: 'completed',
     element: <CompletedPage />,
+  },
+  {
+    path: 'projects/:id',
+    element: <ProjectPage />,
   },
 ];
 

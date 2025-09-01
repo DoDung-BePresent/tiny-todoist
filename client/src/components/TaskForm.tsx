@@ -1,6 +1,12 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,12 +15,30 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTaskMutations } from '@/hooks/useTasks';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon, FlagIcon, XIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  CheckIcon,
+  ChevronDown,
+  FlagIcon,
+  HashIcon,
+  InboxIcon,
+  XIcon,
+} from 'lucide-react';
 import { Calendar } from './ui/calendar';
-import type { Priority, Task } from '@/types/task';
+import type { Task } from '@/types/task';
 import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
 import { useState } from 'react';
 import { PRIORITIES } from '@/constants/task';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from './ui/command';
+import { useProjectsQuery } from '@/hooks/useProject';
 
 type TaskFromProps = {
   type?: 'dialog' | 'card';
@@ -30,6 +54,7 @@ const formSchema = z.object({
   description: z.string().trim().optional(),
   dueDate: z.date().nullable().optional(),
   priority: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
+  projectId: z.string().nullable().optional(),
 });
 
 export const TaskForm = ({
@@ -40,9 +65,11 @@ export const TaskForm = ({
   task,
   initialValues,
 }: TaskFromProps) => {
+  const { projects } = useProjectsQuery();
   const { createTask, updateTask } = useTaskMutations();
   const [showCalendar, setShowCalendar] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
+  const [showProjectPopover, setShowProjectPopover] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,9 +77,10 @@ export const TaskForm = ({
       mode === 'edit'
         ? {
             title: task?.title ?? '',
-            description: task?.description ?? '',
+            description: task?.description ?? '', // Textarea must have string value not null or undefined
             dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
             priority: task?.priority,
+            projectId: task?.projectId,
           }
         : initialValues,
     mode: 'onChange',
@@ -283,35 +311,136 @@ export const TaskForm = ({
             </div>
             <div
               className={cn(
-                'flex items-center justify-end gap-2 border-t-[1px] p-4 pb-0',
+                'flex items-center justify-between border-t-[1px] p-4 pb-0',
                 {
                   'p-2': type === 'card',
                 },
               )}
             >
-              <Button
-                type='button'
-                variant='secondary'
-                size='sm'
-                className='rounded-[6px]'
-                onClick={onDone}
-              >
-                Cancel
-              </Button>
-              <Button
-                type='submit'
-                size='sm'
-                className='rounded-[6px]'
-                disabled={createTask.isPending || !form.formState.isValid}
-              >
-                {createTask.isPending
-                  ? mode === 'edit'
-                    ? 'Saving...'
-                    : 'Adding...'
-                  : mode === 'edit'
-                    ? 'Save'
-                    : 'Add task'}
-              </Button>
+              <FormField
+                control={form.control}
+                name='projectId'
+                render={({ field }) => (
+                  <FormItem>
+                    <Popover
+                      open={showProjectPopover}
+                      onOpenChange={setShowProjectPopover}
+                    >
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            size='sm'
+                            variant='ghost'
+                            className='text-muted-foreground data-[state=open]:bg-accent rounded-[6px]'
+                          >
+                            {field.value ? (
+                              <>
+                                <HashIcon
+                                  strokeWidth={1.5}
+                                  color={
+                                    projects?.find(
+                                      (project) => project.id === field.value,
+                                    )?.color
+                                  }
+                                />
+                                {
+                                  projects?.find(
+                                    (project) => project.id === field.value,
+                                  )?.name
+                                }
+                              </>
+                            ) : (
+                              <>
+                                <InboxIcon />
+                                Inbox
+                              </>
+                            )}
+                            <ChevronDown />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className='p-0'>
+                        {/* TODO: Mặc dù đã có giá trị rồi nhưng mà nó vẫn focus vào inbox */}
+                        <Command>
+                          <CommandInput placeholder='Type a project name' />
+                          <CommandList>
+                            <CommandEmpty>No project found.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                onSelect={() => {
+                                  form.setValue('projectId', null as any, {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                  });
+                                  setShowProjectPopover(false);
+                                }}
+                              >
+                                <InboxIcon />
+                                Inbox
+                              </CommandItem>
+                              <CommandSeparator className='my-1' />
+                              {projects?.map((project) => (
+                                <CommandItem
+                                  key={project.id}
+                                  value={project.id}
+                                  onSelect={() => {
+                                    form.setValue('projectId', project.id);
+                                    setShowProjectPopover(false);
+                                  }}
+                                >
+                                  <HashIcon
+                                    strokeWidth={1.5}
+                                    color={project.color}
+                                  />
+                                  <span>{project.name}</span>
+                                  <CheckIcon
+                                    className={cn(
+                                      'text-primary ml-auto',
+                                      project.id === field.value
+                                        ? 'opacity-100'
+                                        : 'opacity-0',
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+              <div className='flex items-center gap-2'>
+                <Button
+                  type='button'
+                  variant='secondary'
+                  size='sm'
+                  className='rounded-[6px]'
+                  onClick={onDone}
+                  disabled={createTask.isPending || updateTask.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  size='sm'
+                  className='rounded-[6px]'
+                  disabled={
+                    createTask.isPending ||
+                    updateTask.isPending ||
+                    !form.formState.isValid
+                  }
+                >
+                  {createTask.isPending || updateTask.isPending
+                    ? mode === 'edit'
+                      ? 'Saving...'
+                      : 'Adding...'
+                    : mode === 'edit'
+                      ? 'Save'
+                      : 'Add task'}
+                </Button>
+              </div>
             </div>
           </form>
         </Form>

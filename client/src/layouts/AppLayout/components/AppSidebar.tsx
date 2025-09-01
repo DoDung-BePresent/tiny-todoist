@@ -162,20 +162,25 @@ export const AppSidebar = () => {
                 <SidebarMenu>
                   {projects?.map((project) => (
                     <SidebarMenuItem key={project.id}>
-                      <SidebarMenuButton className='group/side-bar-button h-9 px-2'>
-                        <HashIcon
-                          strokeWidth={1.5}
-                          color={project.color}
-                        />
-                        <span className='flex-1'>{project.name}</span>
-                        <ProjectDropdownMenu project={project}>
-                          <Button
-                            variant='ghost'
-                            className='text-muted-foreground size-7 rounded-sm opacity-0 group-hover/side-bar-button:opacity-100 hover:bg-black/5 data-[state=open]:bg-black/5 data-[state=open]:opacity-100'
-                          >
-                            <EllipsisIcon strokeWidth={1.5} />
-                          </Button>
-                        </ProjectDropdownMenu>
+                      <SidebarMenuButton
+                        asChild
+                        className='group/side-bar-button h-9 px-2'
+                      >
+                        <Link to={`projects/${project.name}-${project.id}`}>
+                          <HashIcon
+                            strokeWidth={1.5}
+                            color={project.color}
+                          />
+                          <span className='flex-1'>{project.name}</span>
+                          <ProjectDropdownMenu project={project}>
+                            <Button
+                              variant='ghost'
+                              className='text-muted-foreground size-7 rounded-sm opacity-0 group-hover/side-bar-button:opacity-100 hover:bg-black/5 data-[state=open]:bg-black/5 data-[state=open]:opacity-100'
+                            >
+                              <EllipsisIcon strokeWidth={1.5} />
+                            </Button>
+                          </ProjectDropdownMenu>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

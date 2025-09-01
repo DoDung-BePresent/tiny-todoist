@@ -27,7 +27,7 @@ import { extractErrorDetails } from '@/lib/error';
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { setAuth, clearAuth } = useAuthStore();
+  const { setAuth, clearAuth, user } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => authService.login(payload),
@@ -76,6 +76,7 @@ export const useAuth = () => {
   };
 
   return {
+    user,
     login: loginMutation,
     register: registerMutation,
     loginWithGithub,

@@ -8,7 +8,7 @@ export type Task = {
   dueDate: string | null;
   priority: Priority;
   userId: string;
-  projectId: string;
+  projectId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -18,7 +18,7 @@ export type CreateTaskPayload = {
   description?: string;
   dueDate?: Date | null;
   priority?: Priority;
-  projectId?: string;
+  projectId?: string | null;
 };
 
 export type UpdateTaskPayload = Partial<

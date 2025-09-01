@@ -27,7 +27,6 @@ export const ProjectDialog = ({
   mode = 'create',
   project,
 }: ProjectDialogProps) => {
-  console.log(controlledOpen !== undefined);
   const isControlled = controlledOpen !== undefined;
 
   const [internalOpen, setInternalOpen] = useState(false);
