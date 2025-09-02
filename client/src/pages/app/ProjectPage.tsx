@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { AnimatePresence } from 'framer-motion';
@@ -34,21 +34,29 @@ import {
 } from '@/components/Page';
 import { Button } from '@/components/ui/button';
 import { TaskForm } from '@/components/TaskForm';
+import { useProjectQuery } from '@/hooks/useProject';
 
 const ProjectPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { tasks, isLoading } = useTasksQuery(id);
   const [showTaskForm, setShowTaskForm] = useState(false);
 
-  const title = id?.split('-')[0];
-  const projectId = id?.split('-')[1];
+  const projectId = id?.includes('-') ? id.split('-').pop() : id;
 
-  if (isLoading) {
+  const { project, isLoading: isLoadingProject } = useProjectQuery(projectId!);
+  const { tasks, isLoading: isLoadingTasks } = useTasksQuery(
+    projectId ? `project_${projectId}` : '',
+  );
+
+  useEffect(() => {
+    setShowTaskForm(false);
+  }, [projectId]);
+
+  if (isLoadingTasks || isLoadingProject) {
     return <PageSkeleton />;
   }
 
-  if (!tasks && !isLoading) {
+  if (!project && !isLoadingProject) {
     return (
       <div className='h-screen w-full'>
         <div className='container mx-auto flex h-full items-center justify-center'>
@@ -91,15 +99,14 @@ const ProjectPage = () => {
     );
   }
 
-  //FIXME: Taskform van mo neu chuyen giua cac project khac nhau!
   return (
     <Page>
       <PageHeader>
-        <PageTitle>{title}</PageTitle>
+        <PageTitle>{project?.name}</PageTitle>
       </PageHeader>
       <PageList>
         <AnimatePresence>
-          {isLoading &&
+          {isLoadingTasks &&
             Array.from({ length: 3 }).map((_, index) => (
               <TaskCardSkeleton key={index} />
             ))}

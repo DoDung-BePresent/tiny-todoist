@@ -9,7 +9,7 @@ import {
   PlusIcon,
 } from 'lucide-react';
 import { AddCircle } from 'iconsax-reactjs';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useParams } from 'react-router';
 
 /**
  * Constants
@@ -51,6 +51,7 @@ export const AppSidebar = () => {
   const location = useLocation();
   const { stats } = useTaskStatsQuery();
   const { projects } = useProjectsQuery();
+  const { id } = useParams();
 
   const getCountForLink = (href: string) => {
     if (href.includes('today')) return stats?.today;
@@ -83,7 +84,7 @@ export const AppSidebar = () => {
                 <TaskDialog>
                   <SidebarMenuButton
                     size='lg'
-                    className='gap-1 [&>svg]:size-7'
+                    className='!h-8.5 gap-1 [&>svg]:size-7'
                   >
                     <AddCircle
                       variant='Bold'
@@ -102,7 +103,7 @@ export const AppSidebar = () => {
                     <SidebarMenuButton
                       isActive={isActive}
                       asChild
-                      className='px-2 data-[active=true]:bg-[#ffefe5] data-[active=true]:font-normal [&>svg]:size-5'
+                      className='!h-8.5 px-2 data-[active=true]:bg-[#ffefe5] data-[active=true]:font-normal [&>svg]:size-5'
                     >
                       <Link
                         to={link.href}
@@ -135,9 +136,9 @@ export const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
         <Collapsible className='group/collapsible'>
-          <SidebarGroup>
+          <SidebarGroup className='gap-2'>
             <SidebarGroupLabel asChild>
-              <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary h-9 !text-sm group-data-[state=open]/collapsible:bg-[#ffefe5]'>
+              <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary !h-8.5 h-9 !text-sm'>
                 My Projects
                 <ProjectDialog>
                   <Button
@@ -150,7 +151,7 @@ export const AppSidebar = () => {
                 <CollapsibleTrigger>
                   <Button
                     variant='ghost'
-                    className='text-muted-foreground size-7 rounded-sm hover:bg-black/5'
+                    className='text-muted-foregrounds size-7 rounded-sm hover:bg-black/5'
                   >
                     <ChevronRightIcon className='text-muted-foreground transition-all duration-150 ease-in-out group-data-[state=open]/collapsible:rotate-90' />
                   </Button>
@@ -164,7 +165,8 @@ export const AppSidebar = () => {
                     <SidebarMenuItem key={project.id}>
                       <SidebarMenuButton
                         asChild
-                        className='group/side-bar-button h-9 px-2'
+                        isActive={`${project.name}-${project.id}` === `${id}`}
+                        className='group/side-bar-button !h-8.5 px-2 data-[active=true]:bg-[#ffefe5] data-[active=true]:font-normal'
                       >
                         <Link to={`projects/${project.name}-${project.id}`}>
                           <HashIcon

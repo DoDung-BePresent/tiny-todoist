@@ -17,6 +17,12 @@ export const projectService = {
     const { data } = await api.get('/projects');
     return data;
   },
+  getProject: async (
+    projectId: string,
+  ): Promise<ApiResponse<{ project: Project }>> => {
+    const { data } = await api.get(`/projects/${projectId}`);
+    return data;
+  },
   updateProject: async (
     projectId: string,
     payload: UpdateProjectPayload,

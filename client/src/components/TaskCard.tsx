@@ -1,3 +1,7 @@
+/**
+ * Node modules
+ */
+import { useState } from 'react';
 import {
   CalendarIcon,
   CheckIcon,
@@ -5,17 +9,32 @@ import {
   PenLineIcon,
   TrashIcon,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { Task } from '@/types/task';
-import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useTaskMutations } from '@/hooks/useTasks';
-import { playSound } from '@/lib/sound';
 import { motion } from 'framer-motion';
+
+/**
+ * Libs
+ */
+import { cn } from '@/lib/utils';
+import { playSound } from '@/lib/sound';
+import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
+
+/**
+ * Types
+ */
+import type { Priority, Task } from '@/types/task';
+
+/**
+ * Hooks
+ */
+import { useTaskMutations } from '@/hooks/useTasks';
+
+/**
+ * Components
+ */
 import { Button } from '@/components/ui/button';
+import { TaskForm } from '@/components/TaskForm';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useState } from 'react';
-import { TaskForm } from './TaskForm';
 
 type TaskCardProps = {
   task: Task;
@@ -66,6 +85,7 @@ export const TaskCard = ({ task }: TaskCardProps) => {
       >
         <div className='group/card flex items-start gap-2 py-2'>
           <CheckButton
+            priority={priority}
             completed={completed}
             onToggle={handleToggleComplete}
             className='mt-1'
@@ -133,10 +153,12 @@ const CheckButton = ({
   completed,
   onToggle,
   className,
+  priority,
 }: {
   completed: boolean;
   onToggle: () => void;
   className?: string;
+  priority: Priority;
 }) => {
   return (
     <motion.button
@@ -147,18 +169,24 @@ const CheckButton = ({
     >
       <motion.div variants={circleVariants}>
         <CircleIcon
-          className='size-5 stroke-1'
-          color='#999'
+          className={cn('size-5 rounded-full stroke-1 text-[#999999]', {
+            'bg-red-50 stroke-2 text-red-500': priority === 'P1',
+            'bg-amber-50 stroke-2 text-amber-500': priority === 'P2',
+            'bg-blue-50 stroke-2 text-blue-500': priority === 'P3',
+          })}
+          // color='#999'
         />
       </motion.div>
       <CheckIcon
         className={cn(
-          'absolute top-1/2 left-1/2 size-[11px] -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100',
+          'absolute top-1/2 left-1/2 size-[11px] -translate-x-1/2 -translate-y-1/2 text-[#999999] opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100',
           {
             'opacity-100': completed,
+            'text-red-500': priority === 'P1',
+            'text-amber-500': priority === 'P2',
+            'text-blue-500': priority === 'P3',
           },
         )}
-        color='#999'
         strokeWidth={3}
       />
     </motion.button>

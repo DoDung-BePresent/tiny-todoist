@@ -21,6 +21,20 @@ export const useProjectsQuery = () => {
   };
 };
 
+export const useProjectQuery = (projectId: string) => {
+  const getProjectQuery = useQuery({
+    queryKey: ['project', projectId],
+    queryFn: () => projectService.getProject(projectId),
+    enabled: !!projectId,
+  });
+
+  return {
+    project: getProjectQuery.data?.data.project,
+    isLoading: getProjectQuery.isLoading,
+    isError: getProjectQuery.isError,
+  };
+};
+
 export const useProjectMutation = () => {
   const queryClient = useQueryClient();
 

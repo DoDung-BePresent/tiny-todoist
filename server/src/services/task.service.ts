@@ -22,8 +22,8 @@ export const taskService = {
       createdAt: 'desc' as const,
     };
 
-    if (filter?.split('-')[1]) {
-      const projectId = filter.split('-')[1];
+    if (filter?.startsWith('project_')) {
+      const projectId = filter.split('_')[1];
 
       await projectService.getProjectById(projectId, userId);
 
@@ -114,6 +114,7 @@ export const taskService = {
     const inboxCondition = {
       userId,
       completed: false,
+      projectId: null,
     };
 
     const completedCondition = {
