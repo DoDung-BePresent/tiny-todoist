@@ -35,6 +35,7 @@ import { Button } from '@/components/ui/button';
 import { TaskForm } from '@/components/TaskForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { TaskDetailDialog } from '@/components/TaskDetailDialog';
 
 type TaskCardProps = {
   task: Task;
@@ -46,6 +47,7 @@ export const TaskCard = ({ task }: TaskCardProps) => {
   const { updateTask, deleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showTaskDetail, setShowTaskDetail] = useState(false);
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
@@ -83,14 +85,17 @@ export const TaskCard = ({ task }: TaskCardProps) => {
         }}
         className='border-b'
       >
-        <div className='group/card flex items-start gap-2 py-2'>
+        <div className='group/card flex cursor-pointer items-start gap-2 py-2'>
           <CheckButton
             priority={priority}
             completed={completed}
             onToggle={handleToggleComplete}
             className='mt-1'
           />
-          <div className='w-[90%]'>
+          <div
+            className='w-[90%]'
+            onClick={() => setShowTaskDetail(true)}
+          >
             <span className='truncate text-sm'>{title}</span>
             <p className='text-muted-foreground truncate text-xs'>
               {description}
@@ -139,6 +144,11 @@ export const TaskCard = ({ task }: TaskCardProps) => {
         onConfirm={handleDelete}
         className='top-[20%]'
         okLabel='Delete'
+      />
+      <TaskDetailDialog
+        open={showTaskDetail}
+        onOpenChange={setShowTaskDetail}
+        task={task}
       />
     </>
   );

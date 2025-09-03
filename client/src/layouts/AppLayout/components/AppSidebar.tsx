@@ -138,7 +138,7 @@ export const AppSidebar = () => {
         <Collapsible className='group/collapsible'>
           <SidebarGroup className='gap-2'>
             <SidebarGroupLabel asChild>
-              <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary !h-8.5 h-9 !text-sm'>
+              <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary !h-8.5 !text-sm'>
                 My Projects
                 <ProjectDialog>
                   <Button
