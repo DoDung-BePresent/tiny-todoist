@@ -49,6 +49,7 @@ const formSchema = z.object({
   dueDate: z.date().nullable().optional(),
   priority: z.enum(['P1', 'P2', 'P3', 'P4']).optional(),
   projectId: z.string().nullable().optional(),
+  parentId: z.string().nullable().optional(),
 });
 
 export const TaskForm = ({
@@ -75,6 +76,7 @@ export const TaskForm = ({
             dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
             priority: task?.priority,
             projectId: task?.projectId,
+            parentId: task?.parentId,
           }
         : initialValues,
     mode: 'onChange',
@@ -100,6 +102,7 @@ export const TaskForm = ({
     }
   };
 
+  // TODO: update lai cach style css bang classNames thay vi du theo type
   return (
     <Card
       className={cn(

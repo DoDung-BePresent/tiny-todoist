@@ -38,6 +38,9 @@ export const taskService = {
           projectId,
           completed: false,
         },
+        include: {
+          subtasks: true,
+        },
         orderBy,
       });
     }
@@ -53,6 +56,9 @@ export const taskService = {
               lte: endOfDay(new Date()),
             },
           },
+          include: {
+            subtasks: true,
+          },
           orderBy,
         });
       case 'upcoming':
@@ -64,6 +70,9 @@ export const taskService = {
               gt: endOfDay(new Date()),
             },
           },
+          include: {
+            subtasks: true,
+          },
           orderBy,
         });
       case 'completed':
@@ -71,6 +80,9 @@ export const taskService = {
           where: {
             userId,
             completed: true,
+          },
+          include: {
+            subtasks: true,
           },
           orderBy,
         });
@@ -82,6 +94,9 @@ export const taskService = {
             projectId: null,
             parentId: null,
           },
+          include: {
+            subtasks: true,
+          },
           orderBy,
         });
     }
@@ -90,6 +105,9 @@ export const taskService = {
     const task = await prisma.task.findUnique({
       where: {
         id: taskId,
+      },
+      include: {
+        subtasks: true,
       },
     });
 

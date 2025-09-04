@@ -13,6 +13,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useState } from 'react';
+import { PlusIcon, CornerDownRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -22,9 +23,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { Task } from '@/types/task';
 
 /**
+ * Constants
+ */
+import { PRIORITIES } from '@/constants/task';
+
+/**
  * Libs
  */
 import { cn } from '@/lib/utils';
+import { playSound } from '@/lib/sound';
+import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
+
+/**
+ * Hooks
+ */
+import { useTaskMutations } from '@/hooks/useTasks';
+import { useProjectsQuery } from '@/hooks/useProject';
 
 /**
  * Components
@@ -58,16 +72,18 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { useProjectsQuery } from '@/hooks/useProject';
-import { Separator } from './ui/separator';
-import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
-import { Calendar } from './ui/calendar';
-import { PRIORITIES } from '@/constants/task';
-import { CheckButton } from './TaskCard';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { useTaskMutations } from '@/hooks/useTasks';
-import { playSound } from '@/lib/sound';
+import { Input } from '@/components/ui/input';
+import { TaskForm } from '@/components/TaskForm';
+import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { CheckButton, TaskCard } from '@/components/TaskCard';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 type TaskDetailDialogProps = {
   open: boolean;
@@ -90,6 +106,8 @@ export const TaskDetailDialog = ({
 }: TaskDetailDialogProps) => {
   const { projects } = useProjectsQuery();
   const { updateTask } = useTaskMutations();
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showSubTaskForm, setShowSubTaskForm] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
   const [showProjectPopover, setShowProjectPopover] = useState(false);
@@ -186,10 +204,7 @@ export const TaskDetailDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='grid grid-cols-3'
-          >
+          <div className='grid grid-cols-3'>
             <div className='col-span-2 p-5 pt-2'>
               <div className='flex items-start gap-1.5'>
                 <CheckButton
@@ -232,26 +247,113 @@ export const TaskDetailDialog = ({
                   />
                 </div>
               </div>
-              <div className='mt-2 flex w-full items-center justify-end gap-2'>
-                <Button
-                  onClick={() => onOpenChange(false)}
-                  type='button'
-                  variant='secondary'
-                  size='sm'
-                  className='rounded-[6px]'
-                  disabled={updateTask.isPending}
+              {task.subtasks && task.subtasks.length > 0 && (
+                <Accordion
+                  type='single'
+                  collapsible
+                  className='pl-6'
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type='submit'
-                  size='sm'
-                  className='min-w-16 rounded-[6px]'
-                  disabled={updateTask.isPending || !form.formState.isDirty}
-                >
-                  {updateTask.isPending ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
+                  <AccordionItem value='sub-tasks'>
+                    <AccordionTrigger>Sub-tasks</AccordionTrigger>
+                    <AccordionContent className='pl-7'>
+                      {task.subtasks?.map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          classNames={{
+                            checkButton: '!mt-0',
+                          }}
+                        />
+                      ))}
+                      {!showSubTaskForm && (
+                        <button
+                          type='button'
+                          onClick={() => setShowSubTaskForm(true)}
+                          className='group/button hover:text-primary text-muted-foreground flex w-full cursor-pointer items-center gap-2 p-1.5 px-0.5 py-2.5 text-sm'
+                        >
+                          <PlusIcon
+                            className='text-primary group-hover/button:bg-primary size-5.5 rounded-full p-[1px] group-hover/button:text-white'
+                            strokeWidth={1.5}
+                          />
+                          Add task
+                        </button>
+                      )}
+                      {showSubTaskForm && (
+                        <div className='mt-2 flex items-start gap-1'>
+                          <CornerDownRight className='text-muted-foreground stroke-1' />
+                          <TaskForm
+                            type='card'
+                            mode='create'
+                            className='flex-1'
+                            initialValues={{
+                              projectId: currentProject
+                                ? currentProject.id
+                                : undefined,
+                              parentId: task.id,
+                            }}
+                            onDone={() => setShowSubTaskForm(false)}
+                          />
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
+              {!showTaskForm &&
+                task.subtasks &&
+                task.subtasks?.length === 0 && (
+                  <div className='mt-2 ml-6'>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      type='button'
+                      onClick={() => setShowTaskForm(true)}
+                      className='text-muted-foreground rounded-[6px] text-xs'
+                    >
+                      <PlusIcon />
+                      Add sub-task
+                    </Button>
+                  </div>
+                )}
+              {showTaskForm && (
+                <div className='mt-2 flex items-start gap-1'>
+                  <CornerDownRight className='text-muted-foreground ml-7 stroke-1' />
+                  <TaskForm
+                    type='card'
+                    mode='create'
+                    className='flex-1'
+                    initialValues={{
+                      projectId: currentProject ? currentProject.id : undefined,
+                      parentId: task.id,
+                    }}
+                    onDone={() => setShowTaskForm(false)}
+                  />
+                </div>
+              )}
+              {!showTaskForm ||
+                (!showSubTaskForm && (
+                  <div className='mt-2 flex w-full items-center justify-end gap-2'>
+                    <Button
+                      onClick={() => onOpenChange(false)}
+                      type='button'
+                      variant='secondary'
+                      size='sm'
+                      className='rounded-[6px]'
+                      disabled={updateTask.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      type='button'
+                      size='sm'
+                      className='min-w-16 rounded-[6px]'
+                      disabled={updateTask.isPending || !form.formState.isDirty}
+                    >
+                      {updateTask.isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
+                ))}
             </div>
             <div className='col-span-1 space-y-2 bg-[#ffefe5]/40 p-5'>
               <FormField
@@ -498,7 +600,7 @@ export const TaskDetailDialog = ({
                 )}
               />
             </div>
-          </form>
+          </div>
         </Form>
       </DialogContent>
     </Dialog>

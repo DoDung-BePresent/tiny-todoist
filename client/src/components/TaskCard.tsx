@@ -37,11 +37,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { TaskDetailDialog } from '@/components/TaskDetailDialog';
 
-type TaskCardProps = {
-  task: Task;
+type TaskCardClassNames = {
+  checkButton?: string;
 };
 
-export const TaskCard = ({ task }: TaskCardProps) => {
+type TaskCardProps = {
+  task: Task;
+  classNames?: TaskCardClassNames;
+};
+
+export const TaskCard = ({ task, classNames }: TaskCardProps) => {
   const { id, title, description, completed, dueDate, priority } = task;
 
   const { updateTask, deleteTask } = useTaskMutations();
@@ -90,7 +95,7 @@ export const TaskCard = ({ task }: TaskCardProps) => {
             priority={priority}
             completed={completed}
             onToggle={handleToggleComplete}
-            className='mt-1'
+            className={cn('mt-1', classNames?.checkButton)}
           />
           <div
             className='w-[90%]'
