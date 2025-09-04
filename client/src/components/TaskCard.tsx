@@ -96,7 +96,14 @@ export const TaskCard = ({ task }: TaskCardProps) => {
             className='w-[90%]'
             onClick={() => setShowTaskDetail(true)}
           >
-            <span className='truncate text-sm'>{title}</span>
+            <span
+              className={cn(
+                'truncate text-sm',
+                completed && 'text-muted-foreground line-through',
+              )}
+            >
+              {title}
+            </span>
             <p className='text-muted-foreground truncate text-xs'>
               {description}
             </p>
@@ -159,7 +166,7 @@ const circleVariants = {
   tapped: { scale: 1.2 },
 };
 
-const CheckButton = ({
+export const CheckButton = ({
   completed,
   onToggle,
   className,
@@ -172,6 +179,7 @@ const CheckButton = ({
 }) => {
   return (
     <motion.button
+      type='button'
       initial='rest'
       whileTap='tapped'
       className={cn('relative cursor-pointer', className)}

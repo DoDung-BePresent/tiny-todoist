@@ -63,6 +63,11 @@ import { Separator } from './ui/separator';
 import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
 import { Calendar } from './ui/calendar';
 import { PRIORITIES } from '@/constants/task';
+import { CheckButton } from './TaskCard';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { useTaskMutations } from '@/hooks/useTasks';
+import { playSound } from '@/lib/sound';
 
 type TaskDetailDialogProps = {
   open: boolean;
@@ -84,6 +89,7 @@ export const TaskDetailDialog = ({
   task,
 }: TaskDetailDialogProps) => {
   const { projects } = useProjectsQuery();
+  const { updateTask } = useTaskMutations();
   const [showCalendar, setShowCalendar] = useState(false);
   const [showPriority, setShowPriority] = useState(false);
   const [showProjectPopover, setShowProjectPopover] = useState(false);
@@ -91,13 +97,47 @@ export const TaskDetailDialog = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      dueDate: undefined,
-      priority: 'P4',
-      projectId: '',
+      title: task.title,
+      description: task.description ?? '',
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+      priority: task.priority,
+      projectId: task.projectId,
     },
   });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateTask.mutate(
+      {
+        taskId: task.id,
+        payload: values,
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      },
+    );
+  };
+
+  const handleToggleComplete = () => {
+    playSound('/complete-sound.mp3');
+    updateTask.mutate(
+      {
+        taskId: task.id,
+        payload: {
+          completed: !task.completed,
+        },
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      },
+    );
+  };
+
+  // TODO: Can nhac xem co the dung hook cua project de lay project khong! Output: Project | null
+  const currentProject = projects?.find((p) => p.id === task.projectId);
 
   return (
     <Dialog
@@ -116,8 +156,20 @@ export const TaskDetailDialog = ({
               variant='ghost'
               className='text-muted-foreground rounded-sm text-xs'
             >
-              <InboxIcon />
-              Inbox
+              {currentProject ? (
+                <>
+                  <HashIcon
+                    strokeWidth={1.5}
+                    color={currentProject.color}
+                  />
+                  {currentProject.name}
+                </>
+              ) : (
+                <>
+                  <InboxIcon />
+                  Inbox
+                </>
+              )}
             </Button>
             <div className='ml-auto flex items-center gap-1.5'>
               <Button
@@ -134,9 +186,72 @@ export const TaskDetailDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form className='grid grid-cols-3'>
-            <div className='col-span-2 p-5'>
-              {JSON.stringify(task, null, 4)}
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='grid grid-cols-3'
+          >
+            <div className='col-span-2 p-5 pt-2'>
+              <div className='flex items-start gap-1.5'>
+                <CheckButton
+                  completed={task.completed}
+                  onToggle={handleToggleComplete}
+                  priority={task.priority}
+                  className='mt-0.5'
+                />
+                <div className='min-h-32 w-full rounded-lg border p-2 py-0'>
+                  <FormField
+                    control={form.control}
+                    name='title'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            autoFocus
+                            placeholder='Task name'
+                            className='w-full border-0 px-1 pb-0 !text-xl font-semibold shadow-none focus-visible:ring-0'
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='description'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            placeholder='Description'
+                            className='min-h-5 w-full resize-none border-0 p-1 pt-0 shadow-none focus-visible:ring-0'
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className='mt-2 flex w-full items-center justify-end gap-2'>
+                <Button
+                  onClick={() => onOpenChange(false)}
+                  type='button'
+                  variant='secondary'
+                  size='sm'
+                  className='rounded-[6px]'
+                  disabled={updateTask.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  size='sm'
+                  className='min-w-16 rounded-[6px]'
+                  disabled={updateTask.isPending || !form.formState.isDirty}
+                >
+                  {updateTask.isPending ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
             </div>
             <div className='col-span-1 space-y-2 bg-[#ffefe5]/40 p-5'>
               <FormField
@@ -209,7 +324,9 @@ export const TaskDetailDialog = ({
                                   key={project.id}
                                   value={project.id}
                                   onSelect={() => {
-                                    form.setValue('projectId', project.id);
+                                    form.setValue('projectId', project.id, {
+                                      shouldDirty: true,
+                                    });
                                     setShowProjectPopover(false);
                                   }}
                                 >
