@@ -6,6 +6,7 @@ export type CreateTaskPayload = {
   dueDate?: Date | null;
   priority?: Priority;
   projectId?: string;
+  parentId?: string;
 };
 
 export type UpdateTaskPayload = Partial<{
@@ -15,4 +16,5 @@ export type UpdateTaskPayload = Partial<{
   dueDate: Date | null;
   priority: Priority;
   projectId: string;
+  parentId: string;
 }>;

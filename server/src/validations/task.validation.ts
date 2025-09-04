@@ -9,6 +9,7 @@ export const taskValidation = {
       dueDate: z.coerce.date().optional(), // convert string to Date
       priority: z.enum(Priority).optional(),
       projectId: z.cuid().optional(),
+      parentId: z.cuid().optional(),
     }),
   }),
   updateTaskSchema: z.object({
@@ -19,7 +20,8 @@ export const taskValidation = {
         completed: z.boolean(),
         dueDate: z.coerce.date().nullable(),
         priority: z.enum(Priority),
-        projectId: z.cuid().nullable(), // Allow null to move task back to Inbox
+        projectId: z.cuid().nullable(),
+        parentId: z.cuid().nullable(),
       })
       .partial(),
     params: z.object({

@@ -9,6 +9,11 @@ export const taskService = {
     if (data.projectId) {
       await projectService.getProjectById(data.projectId, userId);
     }
+
+    if (data.parentId) {
+      await taskService.getTaskById(data.parentId, userId);
+    }
+
     const task = await prisma.task.create({
       data: {
         ...data,
@@ -75,6 +80,7 @@ export const taskService = {
             userId,
             completed: false,
             projectId: null,
+            parentId: null,
           },
           orderBy,
         });
@@ -146,6 +152,10 @@ export const taskService = {
 
     if (data.projectId) {
       await projectService.getProjectById(data.projectId, userId);
+    }
+
+    if (data.parentId) {
+      await taskService.getTaskById(data.parentId, userId);
     }
 
     const updatedTask = await prisma.task.update({
