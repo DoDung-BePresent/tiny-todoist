@@ -1,9 +1,29 @@
-import type { Task, UpdateTaskPayload } from '@/types/task';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { taskService } from '@/services/taskService';
+/**
+ * Node modules
+ */
 import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+/**
+ * Services
+ */
+import { taskService } from '@/services/taskService';
+
+/**
+ * Libs
+ */
 import { extractErrorDetails } from '@/lib/error';
+
+/**
+ * Utils
+ */
+import { updateTaskInTree, findTaskById } from '@/utils/task';
+
+/**
+ * Types
+ */
 import type { CreateTaskPayload } from '@/types/task';
+import type { Task, UpdateTaskPayload } from '@/types/task';
 
 export const useTasksQuery = (filter?: string) => {
   const getTasksQuery = useQuery({
@@ -81,7 +101,9 @@ export const useTaskMutations = () => {
             return old;
           }
 
-          if (payload.completed !== undefined) {
+          const taskToUpdate = findTaskById(old.data.tasks, taskId);
+
+          if (payload.completed && taskToUpdate && !taskToUpdate.parentId) {
             return {
               ...old,
               data: {
@@ -95,17 +117,7 @@ export const useTaskMutations = () => {
             ...old,
             data: {
               ...old.data,
-              tasks: old.data.tasks.map((task) =>
-                task.id === taskId
-                  ? ({
-                      ...task,
-                      ...payload,
-                      dueDate: payload.dueDate
-                        ? payload.dueDate.toISOString()
-                        : task.dueDate,
-                    } as Task)
-                  : task,
-              ),
+              tasks: updateTaskInTree(old.data.tasks, taskId, payload),
             },
           };
         },

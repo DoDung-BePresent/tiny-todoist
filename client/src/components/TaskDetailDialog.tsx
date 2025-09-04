@@ -13,8 +13,8 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { PlusIcon, CornerDownRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { PlusIcon, CornerDownRight } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 /**
@@ -252,6 +252,7 @@ export const TaskDetailDialog = ({
                   type='single'
                   collapsible
                   className='pl-6'
+                  defaultValue='sub-tasks'
                 >
                   <AccordionItem value='sub-tasks'>
                     <AccordionTrigger>Sub-tasks</AccordionTrigger>
@@ -330,30 +331,32 @@ export const TaskDetailDialog = ({
                   />
                 </div>
               )}
-              {!showTaskForm ||
-                (!showSubTaskForm && (
-                  <div className='mt-2 flex w-full items-center justify-end gap-2'>
-                    <Button
-                      onClick={() => onOpenChange(false)}
-                      type='button'
-                      variant='secondary'
-                      size='sm'
-                      className='rounded-[6px]'
-                      disabled={updateTask.isPending}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      type='button'
-                      size='sm'
-                      className='min-w-16 rounded-[6px]'
-                      disabled={updateTask.isPending || !form.formState.isDirty}
-                    >
-                      {updateTask.isPending ? 'Saving...' : 'Save'}
-                    </Button>
-                  </div>
-                ))}
+              {(!showTaskForm || !showSubTaskForm) && (
+                <div className='mt-2 flex w-full items-center justify-end gap-2'>
+                  <Button
+                    onClick={() => {
+                      onOpenChange(false);
+                      form.reset();
+                    }}
+                    type='button'
+                    variant='secondary'
+                    size='sm'
+                    className='rounded-[6px]'
+                    disabled={updateTask.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    type='button'
+                    size='sm'
+                    className='min-w-16 rounded-[6px]'
+                    disabled={updateTask.isPending || !form.formState.isDirty}
+                  >
+                    {updateTask.isPending ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              )}
             </div>
             <div className='col-span-1 space-y-2 bg-[#ffefe5]/40 p-5'>
               <FormField
