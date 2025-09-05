@@ -66,7 +66,7 @@ export const TaskDetailSidebar = ({ form }: TaskDetailSidebar) => {
   const [showProjectPopover, setShowProjectPopover] = useState(false);
 
   return (
-    <div className='space-y-2 bg-[#ffefe5]/40 p-5'>
+    <div className='h-full space-y-2 bg-[#ffefe5]/40 p-5'>
       <FormField
         control={form.control}
         name='projectId'
@@ -225,7 +225,7 @@ export const TaskDetailSidebar = ({ form }: TaskDetailSidebar) => {
           </FormItem>
         )}
       />
-      <Separator />
+      <Separator className='!h-[0.5px]' />
       <FormField
         control={form.control}
         name='priority'

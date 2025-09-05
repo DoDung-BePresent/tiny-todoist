@@ -37,4 +37,32 @@ export const commentController = {
       data: { comment },
     });
   }),
+
+  updateComment: asyncHandler(async (req, res) => {
+    const { id: userId } = req.user!;
+    const { commentId } = req.params;
+    const { content } = req.body;
+
+    const updatedComment = await commentService.updateComment(
+      commentId,
+      userId,
+      content,
+    );
+
+    res.status(STATUS_CODE.OK).json({
+      message: 'Comment updated successfully!',
+      data: {
+        comment: updatedComment,
+      },
+    });
+  }),
+
+  deleteComment: asyncHandler(async (req, res) => {
+    const { id: userId } = req.user!;
+    const { commentId } = req.params;
+
+    await commentService.deleteComment(commentId, userId);
+
+    res.status(STATUS_CODE.NO_CONTENT).send();
+  }),
 };

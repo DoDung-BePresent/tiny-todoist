@@ -32,4 +32,16 @@ commentRouter.post(
   commentController.createComment,
 );
 
+commentRouter.patch(
+  '/:commentId',
+  validate(commentValidation.updateCommentSchema),
+  commentController.updateComment,
+);
+
+commentRouter.delete(
+  '/:commentId',
+  validate(commentValidation.deleteCommentSchema),
+  commentController.deleteComment,
+);
+
 export default commentRouter;

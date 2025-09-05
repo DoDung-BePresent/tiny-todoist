@@ -17,4 +17,19 @@ export const commentValidation = {
       content: z.string().trim().min(1),
     }),
   }),
+  updateCommentSchema: z.object({
+    params: z.object({
+      taskId: z.cuid({ message: 'Invalid task ID' }),
+      commentId: z.cuid({ message: 'Invalid comment ID' }),
+    }),
+    body: z.object({
+      content: z.string().trim().min(1, 'Comment cannot be empty'),
+    }),
+  }),
+  deleteCommentSchema: z.object({
+    params: z.object({
+      taskId: z.cuid({ message: 'Invalid task ID' }),
+      commentId: z.cuid({ message: 'Invalid comment ID' }),
+    }),
+  }),
 };

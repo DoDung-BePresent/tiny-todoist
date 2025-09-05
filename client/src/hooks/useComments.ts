@@ -23,21 +23,8 @@ export const useCommentMutations = (taskId: string) => {
   const createComment = useMutation({
     mutationFn: (payload: CreateCommentPayload) =>
       commentService.createComment(taskId, payload),
-    onSuccess: (response) => {
-      queryClient.setQueryData<{ data: { comments: Comment[] } }>(
-        ['comments', taskId],
-        (oldData) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              comments: [...oldData.data.comments, response.data.comment],
-            },
-          };
-        },
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments'] });
     },
     onError: (error) => {
       const { message } = extractErrorDetails(error);

@@ -31,7 +31,6 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { TaskDetailSidebar } from './TaskDetailSidebar';
 import { TaskDetailMain } from './TaskDetailMain';
-import { TaskActivity } from './TaskActivity';
 
 type TaskDetailDialogProps = {
   open: boolean;
@@ -139,7 +138,6 @@ export const TaskDetailDialog = ({
                 currentProject={currentProject}
                 onSubmit={onSubmit}
               />
-              <TaskActivity taskId={task.id} />
             </div>
             <div className='col-span-1'>
               <TaskDetailSidebar form={form} />

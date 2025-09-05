@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogOverlay,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,6 +21,7 @@ type ConfirmDialogProps = {
   okLabel?: string;
   cancelLabel?: string;
   className?: string;
+  showOverlay?: boolean;
 };
 
 export const ConfirmDialog = ({
@@ -33,6 +33,7 @@ export const ConfirmDialog = ({
   onConfirm,
   okLabel = 'Save Changes',
   cancelLabel = 'Cancel',
+  showOverlay = true,
   className,
 }: ConfirmDialogProps) => {
   const handleConfirm = () => {
@@ -49,7 +50,7 @@ export const ConfirmDialog = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogOverlay className='bg-black/50' />
+      {showOverlay && <DialogOverlay className='bg-black/50' />}
       <DialogContent
         className={cn('p-4', className)}
         showCloseButton={false}

@@ -1,134 +1,105 @@
 /**
  * Node modules
  */
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { formatDistanceToNow } from 'date-fns';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { Paperclip } from 'lucide-react';
 
 /**
  * Hooks
  */
 import { useAuth } from '@/hooks/useAuth';
-import { useCommentsQuery, useCommentMutations } from '@/hooks/useComments';
+import { useCommentsQuery } from '@/hooks/useComments';
+
+/**
+ * Types
+ */
+import type { User } from '@/types/auth';
 
 /**
  * Components
  */
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { CommentItem } from './CommentItem';
+import { CommentForm } from './CommentForm';
 
 type TaskActivityProps = {
   taskId: string;
 };
 
-const formSchema = z.object({
-  content: z.string().trim().min(1),
-});
-
 export const TaskActivity = ({ taskId }: TaskActivityProps) => {
   const { user } = useAuth();
-  const { comments, isLoading } = useCommentsQuery(taskId);
-  const { createComment } = useCommentMutations(taskId);
+  const { comments } = useCommentsQuery(taskId);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      content: '',
-    },
-  });
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createComment.mutate(values, {
-      onSuccess: () => {
-        form.reset();
-      },
-    });
-  };
+  const [showCommentForm, setShowCommentForm] = useState(false);
 
   return (
-    <div>
-      <div className='mt-4 space-y-4'>
-        {isLoading &&
-          Array.from({ length: 2 }).map((_, i) => (
-            <div
-              key={i}
-              className='flex items-start gap-3'
-            >
-              <Skeleton className='size-8 rounded-full' />
-              <div className='flex-1 space-y-1'>
-                <Skeleton className='h-4 w-1/4' />
-                <Skeleton className='h-4 w-3/4' />
-              </div>
-            </div>
-          ))}
-
-        {comments?.map((comment) => (
-          <div
-            key={comment.id}
-            className='flex items-start gap-3'
-          >
-            <Avatar className='size-8'>
-              <AvatarImage src={comment.user.avatar ?? ''} />
-              <AvatarFallback>
-                {comment.user.name?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className='flex-1'>
-              <div className='flex items-center gap-2'>
-                <span className='font-semibold'>{comment.user.name}</span>
-                <span className='text-muted-foreground text-xs'>
-                  {formatDistanceToNow(new Date(comment.createdAt), {
-                    addSuffix: true,
-                  })}
-                </span>
-              </div>
-              <p className='text-sm'>{comment.content}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className='mt-6 flex items-start gap-3'>
-        <Avatar className='size-8'>
-          <AvatarImage src={user?.avatar ?? ''} />
-          <AvatarFallback>{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='flex-1'
-          >
-            <FormField
-              control={form.control}
-              name='content'
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder='Add a comment...'
-                      className='rounded-xl'
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className='mt-2 flex justify-end'>
-              <Button
-                type='submit'
-                size='sm'
-                disabled={!form.formState.isValid || createComment.isPending}
-              >
-                {createComment.isPending ? 'Commenting...' : 'Comment'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
+    <div className='mb-5 pl-6'>
+      {comments && comments.length > 0 && (
+        <Accordion
+          type='single'
+          collapsible
+        >
+          <AccordionItem value='comments'>
+            <AccordionTrigger className='pt-3'>
+              Comments{' '}
+              <span className='text-muted-foreground mt-0.5 text-xs font-normal'>
+                {comments.length}
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className='space-y-2 py-2 pl-5'>
+              {comments?.map((comment) => (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                />
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+      {!showCommentForm && (
+        <FormButton
+          user={user}
+          onClick={() => setShowCommentForm(true)}
+        />
+      )}
+      {showCommentForm && (
+        <CommentForm
+          taskId={taskId}
+          onCancel={() => setShowCommentForm(false)}
+        />
+      )}
     </div>
+  );
+};
+
+const FormButton = ({
+  user,
+  onClick,
+}: {
+  user: User | null;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      type='button'
+      className='mt-3 flex w-full items-center gap-3'
+    >
+      <Avatar className='size-8'>
+        <AvatarImage src={user?.avatar ?? ''} />
+        <AvatarFallback>{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <div className='text-muted-foreground flex flex-1 items-center justify-between rounded-full border p-1.5 px-4 text-sm transition-colors duration-200 ease-in-out hover:bg-[#ffefe5]/15 hover:text-black'>
+        Comment
+        <Paperclip className='size-5 stroke-1' />
+      </div>
+    </button>
   );
 };
