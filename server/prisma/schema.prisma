@@ -19,6 +19,8 @@ model User {
   accounts    Account[]
   tasks       Task[]
   projects    Project[]
+  comments    Comment[]
+  reactions   Reaction[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -59,6 +61,7 @@ model Project {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // Relations
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -78,6 +81,7 @@ model Task {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // Relations
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -88,8 +92,49 @@ model Task {
   parent      Task?     @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
   subtasks    Task[]    @relation("Subtasks")
 
+  comments    Comment[]
+
   @@index([userId])
   @@map("tasks")
+}
+
+model Comment {
+  id          String        @id @default(cuid())
+  content     String?       @db.Text
+  type        CommentType   @default(TEXT)
+  fileUrl     String?
+  fileName    String?
+  fileType    String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  reactions   Reaction[]
+
+  @@map("comments")
+}
+
+model Reaction {
+  id          String    @id @default(cuid())
+  emoji       String
+  createdAt   DateTime  @default(now())
+
+  // Relation
+  commentId   String
+  comment     Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId, emoji])
+  @@map("reactions")
 }
 
 enum AccountType {
@@ -107,5 +152,11 @@ enum Priority {
   P2 // High
   P3 // Medium
   P4 // Low
+}
+
+enum CommentType {
+  TEXT
+  MEDIA
+  VOICE
 }
 

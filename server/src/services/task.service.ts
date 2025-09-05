@@ -1,8 +1,23 @@
-import { CreateTaskPayload, UpdateTaskPayload } from '@/types/task.types';
-import { NotFoundError } from '@/lib/error';
-import prisma from '@/lib/prisma';
+/**
+ * Node modules
+ */
 import { endOfDay, startOfDay } from 'date-fns';
-import { projectService } from './project.service';
+
+/**
+ * Types
+ */
+import { CreateTaskPayload, UpdateTaskPayload } from '@/types/task.types';
+
+/**
+ * Libs
+ */
+import prisma from '@/lib/prisma';
+import { NotFoundError } from '@/lib/error';
+
+/**
+ * Services
+ */
+import { projectService } from '@/services/project.service';
 
 export const taskService = {
   createTask: async (userId: string, data: CreateTaskPayload) => {
