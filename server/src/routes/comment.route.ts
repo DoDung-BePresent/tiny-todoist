@@ -6,6 +6,7 @@ import { Router } from 'express';
 /**
  * Middlewares
  */
+import { upload } from '@/middlewares/upload.middleware';
 import { validate } from '@/middlewares/validate.middleware';
 
 /**
@@ -28,6 +29,7 @@ commentRouter.get(
 
 commentRouter.post(
   '/',
+  upload.single('file'),
   validate(commentValidation.createCommentSchema),
   commentController.createComment,
 );

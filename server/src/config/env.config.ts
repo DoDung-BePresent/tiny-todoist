@@ -26,6 +26,9 @@ const config = {
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
   ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY as ms.StringValue,
   REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY as ms.StringValue,
+  SUPABASE_URL: process.env.SUPABASE_URL!,
+  SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY!,
+  SUPABASE_BUCKET_NAME: process.env.SUPABASE_BUCKET_NAME!,
 };
 
 export default config;

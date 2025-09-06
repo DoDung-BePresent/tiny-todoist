@@ -14,7 +14,7 @@ export const commentValidation = {
       taskId: z.cuid({ message: 'Invalid task ID' }),
     }),
     body: z.object({
-      content: z.string().trim().min(1),
+      content: z.string().trim().optional(),
     }),
   }),
   updateCommentSchema: z.object({

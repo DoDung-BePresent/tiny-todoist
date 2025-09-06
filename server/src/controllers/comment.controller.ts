@@ -30,7 +30,12 @@ export const commentController = {
     const { taskId } = req.params;
     const { content } = req.body;
 
-    const comment = await commentService.createComment(taskId, userId, content);
+    const file = req.file;
+
+    const comment = await commentService.createComment(taskId, userId, {
+      content,
+      file,
+    });
 
     res.status(STATUS_CODE.CREATED).json({
       message: 'Comment created successfully',
