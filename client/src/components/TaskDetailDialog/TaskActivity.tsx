@@ -72,7 +72,7 @@ export const TaskActivity = ({ taskId }: TaskActivityProps) => {
       {showCommentForm && (
         <CommentForm
           taskId={taskId}
-          onCancel={() => setShowCommentForm(false)}
+          onDone={() => setShowCommentForm(false)}
         />
       )}
     </div>

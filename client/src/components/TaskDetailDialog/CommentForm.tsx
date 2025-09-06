@@ -7,37 +7,70 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MicIcon, Paperclip, SmileIcon } from 'lucide-react';
 
 /**
+ * Types
+ */
+import type { Comment } from '@/types/comment';
+
+/**
+ * Hooks
+ */
+import { useCommentMutations } from '@/hooks/useComments';
+
+/**
  * Components
  */
 import { Button } from '@/components/ui/button';
-import { useCommentMutations } from '@/hooks/useComments';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 type CommentFormProps = {
   taskId: string;
-  onCancel: () => void;
+  comment?: Comment;
+  mode?: 'create' | 'edit';
+  onDone: () => void;
+  initialValues?: Partial<z.infer<typeof formSchema>>;
 };
 
 const formSchema = z.object({
   content: z.string().trim().min(1),
 });
 
-export const CommentForm = ({ taskId, onCancel }: CommentFormProps) => {
-  const { createComment } = useCommentMutations(taskId);
+export const CommentForm = ({
+  taskId,
+  comment,
+  mode = 'create',
+  onDone,
+  initialValues,
+}: CommentFormProps) => {
+  const { createComment, updateComment } = useCommentMutations(taskId);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      content: '',
-    },
+    defaultValues:
+      mode === 'edit'
+        ? {
+            content: comment?.content ?? '',
+          }
+        : initialValues,
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createComment.mutate(values, {
-      onSuccess: () => {
-        form.reset();
-      },
-    });
+    if (mode === 'create') {
+      createComment.mutate(values, {
+        onSuccess: () => {
+          form.reset();
+          onDone?.();
+        },
+      });
+    } else {
+      updateComment.mutate(
+        { commentId: comment!.id, payload: values },
+        {
+          onSuccess: () => {
+            onDone?.();
+          },
+        },
+      );
+    }
   };
   return (
     <Form {...form}>
@@ -89,8 +122,8 @@ export const CommentForm = ({ taskId, onCancel }: CommentFormProps) => {
               variant='secondary'
               size='sm'
               className='rounded-[6px]'
-              onClick={onCancel}
-              disabled={createComment.isPending}
+              onClick={onDone}
+              disabled={createComment.isPending || updateComment.isPending}
             >
               Cancel
             </Button>
@@ -98,9 +131,19 @@ export const CommentForm = ({ taskId, onCancel }: CommentFormProps) => {
               type='submit'
               size='sm'
               className='rounded-[6px]'
-              disabled={createComment.isPending}
+              disabled={
+                createComment.isPending ||
+                updateComment.isPending ||
+                !form.formState.isValid
+              }
             >
-              {createComment.isPending ? 'Commenting...' : 'Comment'}
+              {createComment.isPending || updateComment.isPending
+                ? mode === 'edit'
+                  ? 'Saving...'
+                  : 'Commenting...'
+                : mode === 'create'
+                  ? 'Comment'
+                  : 'Save'}
             </Button>
           </div>
         </div>

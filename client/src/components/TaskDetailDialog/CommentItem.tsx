@@ -6,6 +6,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { PenLineIcon, TrashIcon } from 'lucide-react';
 
 /**
+ * Hooks
+ */
+import { useCommentMutations } from '@/hooks/useComments';
+
+/**
  * Types
  */
 import type { Comment } from '@/types/comment';
@@ -14,14 +19,31 @@ import type { Comment } from '@/types/comment';
  * Components
  */
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ConfirmDialog } from '../ConfirmDialog';
+import { CommentForm } from '@/components/TaskDetailDialog/CommentForm';
 
 export const CommentItem = ({ comment }: { comment: Comment }) => {
-  const [showTaskForm, setShowTaskForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCommentForm, setShowCommentForm] = useState(false);
 
-  const handleDelete = () => console.log('Delete');
+  const { deleteComment } = useCommentMutations(comment.taskId);
+
+  const handleDelete = () => {
+    deleteComment.mutate(comment.id);
+  };
+
+  if (showCommentForm) {
+    return (
+      <CommentForm
+        mode='edit'
+        taskId={comment.taskId}
+        comment={comment}
+        onDone={() => setShowCommentForm(false)}
+      />
+    );
+  }
+
   return (
     <>
       <div className='group/card flex items-start gap-3 p-2'>
@@ -44,7 +66,7 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
         </div>
         <div className='flex items-center gap-1'>
           <Button
-            onClick={() => setShowTaskForm(true)}
+            onClick={() => setShowCommentForm(true)}
             variant={'ghost'}
             className='size-7 rounded-sm text-blue-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-blue-500'
           >

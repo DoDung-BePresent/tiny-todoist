@@ -1,14 +1,10 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+/**
+ * Node modules
+ */
 import z from 'zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { useTaskMutations } from '@/hooks/useTasks';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import {
   CalendarIcon,
   CheckIcon,
@@ -18,11 +14,41 @@ import {
   InboxIcon,
   XIcon,
 } from 'lucide-react';
-import { Calendar } from './ui/calendar';
+
+/**
+ * Hooks
+ */
+import { useTaskMutations } from '@/hooks/useTasks';
+import { useProjectsQuery } from '@/hooks/useProject';
+
+/**
+ * Types
+ */
 import type { Task } from '@/types/task';
-import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
-import { useState } from 'react';
+
+/**
+ * Constants
+ */
 import { PRIORITIES } from '@/constants/task';
+
+/**
+ * Libs
+ */
+import { cn } from '@/lib/utils';
+import { formatCustomDate, getTaskDueDateColorClass } from '@/lib/date';
+
+/**
+ * Components
+ */
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -31,8 +57,9 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from './ui/command';
-import { useProjectsQuery } from '@/hooks/useProject';
+} from '@/components/ui/command';
+import { Calendar } from '@/components/ui/calendar';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 type TaskFromProps = {
   type?: 'dialog' | 'card';
@@ -433,7 +460,7 @@ export const TaskForm = ({
                     ? mode === 'edit'
                       ? 'Saving...'
                       : 'Adding...'
-                    : mode === 'edit'
+                    : mode === 'create'
                       ? 'Save'
                       : 'Add task'}
                 </Button>
