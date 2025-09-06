@@ -2,9 +2,10 @@
  * Node modules
  */
 import z from 'zod';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MicIcon, Paperclip, SmileIcon } from 'lucide-react';
+import { MicIcon, Paperclip, SmileIcon, XIcon } from 'lucide-react';
 
 /**
  * Types
@@ -31,7 +32,8 @@ type CommentFormProps = {
 };
 
 const formSchema = z.object({
-  content: z.string().trim().min(1),
+  content: z.string().optional(),
+  file: z.instanceof(File).optional(),
 });
 
 export const CommentForm = ({
@@ -42,6 +44,8 @@ export const CommentForm = ({
   initialValues,
 }: CommentFormProps) => {
   const { createComment, updateComment } = useCommentMutations(taskId);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,17 +57,46 @@ export const CommentForm = ({
         : initialValues,
   });
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      setSelectedFile(file);
+      form.setValue('file', file, { shouldValidate: true });
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    form.setValue('file', undefined, { shouldValidate: true });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (mode === 'create') {
-      createComment.mutate(values, {
-        onSuccess: () => {
-          form.reset();
-          onDone?.();
+      createComment.mutate(
+        {
+          content: values.content,
+          file: selectedFile ?? undefined,
         },
-      });
+        {
+          onSuccess: () => {
+            form.reset();
+            removeFile();
+            onDone?.();
+          },
+        },
+      );
     } else {
       updateComment.mutate(
-        { commentId: comment!.id, payload: values },
+        {
+          commentId: comment!.id,
+          payload: {
+            content: values.content!,
+          },
+        },
         {
           onSuccess: () => {
             onDone?.();
@@ -95,21 +128,46 @@ export const CommentForm = ({
           )}
         />
 
+        {selectedFile && (
+          <div className='bg-accent/50 text-muted-foreground mb-2 flex items-center justify-between rounded-md p-2 text-sm'>
+            <span>{selectedFile.name}</span>
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              className='size-6 p-0'
+              onClick={removeFile}
+            >
+              <XIcon className='size-4' />
+            </Button>
+          </div>
+        )}
+
         <div className='flex items-center justify-between'>
           <div className='space-x-1'>
+            <input
+              type='file'
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className='hidden'
+            />
             <Button
+              type='button'
               variant='ghost'
               className='text-muted-foreground size-8 rounded-sm hover:text-black'
+              onClick={() => fileInputRef.current?.click()}
             >
               <Paperclip className='size-4.5 stroke-1' />
             </Button>
             <Button
+              type='button'
               variant='ghost'
               className='text-muted-foreground size-8 rounded-sm hover:text-black'
             >
               <MicIcon className='size-4.5 stroke-1' />
             </Button>
             <Button
+              type='button'
               variant='ghost'
               className='text-muted-foreground size-8 rounded-sm hover:text-black'
             >

@@ -25,7 +25,21 @@ export const commentService = {
     taskId: string,
     payload: CreateCommentPayload,
   ): Promise<ApiResponse<{ comment: Comment }>> => {
-    const { data } = await api.post(`/tasks/${taskId}/comments`, payload);
+    const formData = new FormData();
+
+    if (payload.content) {
+      formData.append('content', payload.content);
+    }
+
+    if (payload.file) {
+      formData.append('file', payload.file);
+    }
+
+    const { data } = await api.post(`/tasks/${taskId}/comments`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return data;
   },
 

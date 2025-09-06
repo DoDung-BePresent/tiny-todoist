@@ -26,7 +26,8 @@ export type Comment = {
 };
 
 export type CreateCommentPayload = {
-  content: string;
+  content?: string;
+  file?: File;
 };
 
 export type UpdateCommentPayload = {

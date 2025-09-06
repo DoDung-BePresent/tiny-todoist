@@ -43,7 +43,7 @@ export const useCommentMutations = (taskId: string) => {
     mutationFn: (payload: CreateCommentPayload) =>
       commentService.createComment(taskId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+      queryClient.invalidateQueries({ queryKey: ['comments', taskId] });
     },
     onError: (error) => {
       const { message } = extractErrorDetails(error);

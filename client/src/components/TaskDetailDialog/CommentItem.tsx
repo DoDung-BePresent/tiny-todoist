@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { PenLineIcon, TrashIcon } from 'lucide-react';
+import { FileIcon, PenLineIcon, TrashIcon } from 'lucide-react';
 
 /**
  * Hooks
@@ -31,6 +31,55 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
 
   const handleDelete = () => {
     deleteComment.mutate(comment.id);
+  };
+
+  const renderFileAttachment = () => {
+    if (!comment.fileUrl || !comment.fileType) {
+      return null;
+    }
+
+    if (comment.fileType.startsWith('image/')) {
+      return (
+        <a
+          href={comment.fileUrl}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='mt-2 block'
+        >
+          <img
+            src={comment.fileUrl}
+            alt={comment.fileName ?? 'Uploaded image'}
+            className='max-h-64 max-w-full rounded-md border object-cover'
+          />
+        </a>
+      );
+    }
+    if (comment.fileType.startsWith('audio/')) {
+      return (
+        <audio
+          controls
+          src={comment.fileUrl}
+          className='mt-2 w-full'
+        >
+          Your browser does not support the audio element.
+        </audio>
+      );
+    }
+
+    return (
+      <a
+        href={comment.fileUrl}
+        target='_blank'
+        rel='noopener noreferrer'
+        download={comment.fileName}
+        className='bg-accent/50 text-muted-foreground hover:bg-accent mt-2 flex items-center gap-3 rounded-md border p-3 transition-colors'
+      >
+        <FileIcon className='size-6 shrink-0' />
+        <span className='truncate text-sm font-medium'>
+          {comment.fileName ?? 'Attached file'}
+        </span>
+      </a>
+    );
   };
 
   if (showCommentForm) {
@@ -62,7 +111,10 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
               })}
             </span>
           </div>
-          <p className='text-sm'>{comment.content}</p>
+          <p className='text-sm'>
+            {comment.content && <p>{comment.content}</p>}
+            {renderFileAttachment()}
+          </p>
         </div>
         <div className='flex items-center gap-1'>
           <Button
