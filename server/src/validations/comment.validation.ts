@@ -23,8 +23,11 @@ export const commentValidation = {
       commentId: z.cuid({ message: 'Invalid comment ID' }),
     }),
     body: z.object({
-      content: z.string().trim().min(1, 'Comment cannot be empty'),
-    }),
+      content: z.string().trim().optional(),
+      fileUrl: z.null().optional(),
+    }).refine((data) => data.content !== undefined || data.fileUrl !== undefined, {
+      message: "Update payload cannot be empty."
+    })
   }),
   deleteCommentSchema: z.object({
     params: z.object({

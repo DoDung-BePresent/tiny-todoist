@@ -46,12 +46,12 @@ export const commentController = {
   updateComment: asyncHandler(async (req, res) => {
     const { id: userId } = req.user!;
     const { commentId } = req.params;
-    const { content } = req.body;
+    const payload = req.body;
 
     const updatedComment = await commentService.updateComment(
       commentId,
       userId,
-      content,
+      payload,
     );
 
     res.status(STATUS_CODE.OK).json({

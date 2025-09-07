@@ -75,7 +75,10 @@ export const commentService = {
         if (comment.fileUrl) {
           const { data, error } = await supabase.storage
             .from(config.SUPABASE_BUCKET_NAME)
-            .createSignedUrl(comment.fileUrl, ms(config.SIGNED_URL_EXPIRY));
+            .createSignedUrl(
+              comment.fileUrl,
+              ms(config.SIGNED_URL_EXPIRY) / 1000,
+            );
           if (error) {
             logger.error('Error creating signed URL', { error });
             comment.fileUrl = null; // Prevent sending a broken path to the client
@@ -159,16 +162,62 @@ export const commentService = {
     });
   },
 
-  updateComment: async (commentId: string, userId: string, content: string) => {
-    await checkCommentOwnership(commentId, userId);
+  updateComment: async (
+    commentId: string,
+    userId: string,
+    payload: {
+      content?: string;
+      fileUrl?: null;
+    },
+  ) => {
+    const comment = await checkCommentOwnership(commentId, userId);
+
+    const dataToUpdate: {
+      content?: string;
+      fileUrl?: string | null;
+      fileName?: string | null;
+      fileType?: string | null;
+      type?: CommentType;
+    } = {};
+
+    if (payload.content !== undefined) {
+      dataToUpdate.content = payload.content;
+    }
+
+    if (payload.fileUrl === null && comment.fileUrl) {
+      const { error } = await supabase.storage
+        .from(config.SUPABASE_BUCKET_NAME)
+        .remove([comment.fileUrl]);
+
+      if (error) {
+        logger.error('Failed to delete file from storage on update', {
+          path: comment.fileUrl,
+          error,
+        });
+      }
+
+      dataToUpdate.fileUrl = null;
+      dataToUpdate.fileName = null;
+      dataToUpdate.fileType = null;
+
+      if (!dataToUpdate.content && !comment.content) {
+        dataToUpdate.type = CommentType.TEXT;
+      }
+    }
+
+    const newContent = dataToUpdate.content ?? comment.content;
+    const newFileUrl = dataToUpdate.fileUrl === null ? null : comment.fileUrl;
+    if (!newContent && !newFileUrl) {
+      throw new BadRequestError(
+        'Comment cannot be empty. It must have content or a file.',
+      );
+    }
 
     return prisma.comment.update({
       where: {
         id: commentId,
       },
-      data: {
-        content,
-      },
+      data: dataToUpdate,
     });
   },
 
