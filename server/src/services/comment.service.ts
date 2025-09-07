@@ -1,6 +1,8 @@
 /**
  * Node modules
  */
+import ms from 'ms';
+import sharp from 'sharp';
 import { CommentType } from '@prisma/client';
 
 /**
@@ -25,6 +27,7 @@ import {
   NotFoundError,
 } from '@/lib/error';
 import { ERROR_CODE_ENUM } from '@/constants/error.constant';
+import logger from '@/lib/logger';
 
 const checkCommentOwnership = async (commentId: string, userId: string) => {
   const comment = await prisma.comment.findUnique({
@@ -50,7 +53,7 @@ export const commentService = {
   getCommentsByTask: async (taskId: string, userId: string) => {
     await taskService.getTaskById(taskId, userId);
 
-    return prisma.comment.findMany({
+    const comments = await prisma.comment.findMany({
       where: { taskId },
       include: {
         user: {
@@ -66,6 +69,25 @@ export const commentService = {
         createdAt: 'asc',
       },
     });
+
+    const commentsWithSignedUrls = await Promise.all(
+      comments.map(async (comment) => {
+        if (comment.fileUrl) {
+          const { data, error } = await supabase.storage
+            .from(config.SUPABASE_BUCKET_NAME)
+            .createSignedUrl(comment.fileUrl, ms(config.SIGNED_URL_EXPIRY));
+          if (error) {
+            logger.error('Error creating signed URL', { error });
+            comment.fileUrl = null; // Prevent sending a broken path to the client
+          } else {
+            comment.fileUrl = data.signedUrl;
+          }
+        }
+        return comment;
+      }),
+    );
+
+    return commentsWithSignedUrls;
   },
 
   createComment: async (
@@ -80,16 +102,24 @@ export const commentService = {
 
     const { content, file } = payload;
 
-    let fileUrl: string | undefined;
+    let filePath: string | undefined;
     let commentType: CommentType = CommentType.TEXT;
 
     if (file) {
-      const filePath = `${userId}/${taskId}/${Date.now()}-${file.originalname}`;
+      filePath = `${userId}/${taskId}/${Date.now()}-${file.originalname}`;
+
+      const optimizedBuffer = await sharp(file.buffer)
+        .resize({
+          width: 1024,
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 80 })
+        .toBuffer();
 
       const { error } = await supabase.storage
         .from(config.SUPABASE_BUCKET_NAME)
-        .update(filePath, file.buffer, {
-          contentType: file.mimetype,
+        .update(filePath, optimizedBuffer, {
+          contentType: 'image/webp',
         });
 
       if (error) {
@@ -98,16 +128,10 @@ export const commentService = {
           ERROR_CODE_ENUM.FILE_STORAGE_ERROR,
         );
       }
-
-      const { data } = supabase.storage
-        .from(config.SUPABASE_BUCKET_NAME)
-        .getPublicUrl(filePath);
-
-      fileUrl = data.publicUrl;
       commentType = CommentType.MEDIA;
     }
 
-    if (!content && !fileUrl) {
+    if (!content && !filePath) {
       throw new BadRequestError('Comment must have content or a file.');
     }
 
@@ -116,7 +140,8 @@ export const commentService = {
         content,
         taskId,
         userId,
-        fileUrl,
+        // TODO: Should renamed fileUrl to filePath
+        fileUrl: filePath,
         fileName: file?.originalname,
         fileType: file?.mimetype,
         type: commentType,
@@ -148,7 +173,20 @@ export const commentService = {
   },
 
   deleteComment: async (commentId: string, userId: string) => {
-    await checkCommentOwnership(commentId, userId);
+    const comment = await checkCommentOwnership(commentId, userId);
+
+    if (comment.fileUrl) {
+      const { error } = await supabase.storage
+        .from(config.SUPABASE_BUCKET_NAME)
+        .remove([comment.fileUrl]);
+
+      if (error) {
+        logger.error('Failed to delete file from storage', {
+          path: comment.fileUrl,
+          error,
+        });
+      }
+    }
 
     return prisma.comment.delete({
       where: {

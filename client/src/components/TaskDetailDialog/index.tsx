@@ -130,7 +130,7 @@ export const TaskDetailDialog = ({
 
         <Form {...form}>
           <div className='grid grid-cols-3'>
-            <div className='col-span-2'>
+            <div className='col-span-2 min-h-[80vh]'>
               <TaskDetailMain
                 form={form}
                 task={task}

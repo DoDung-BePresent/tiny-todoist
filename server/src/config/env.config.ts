@@ -29,6 +29,7 @@ const config = {
   SUPABASE_URL: process.env.SUPABASE_URL!,
   SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY!,
   SUPABASE_BUCKET_NAME: process.env.SUPABASE_BUCKET_NAME!,
+  SIGNED_URL_EXPIRY: process.env.SIGNED_URL_EXPIRY as ms.StringValue,
 };
 
 export default config;
