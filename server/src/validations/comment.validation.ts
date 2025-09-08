@@ -24,10 +24,8 @@ export const commentValidation = {
     }),
     body: z.object({
       content: z.string().trim().optional(),
-      fileUrl: z.null().optional(),
-    }).refine((data) => data.content !== undefined || data.fileUrl !== undefined, {
-      message: "Update payload cannot be empty."
-    })
+      removeFile: z.enum(['true']).optional(),
+    }),
   }),
   deleteCommentSchema: z.object({
     params: z.object({

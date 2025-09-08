@@ -11,6 +11,11 @@ import { CommentType } from '@prisma/client';
 import config from '@/config/env.config';
 
 /**
+ * Constants
+ */
+import { ERROR_CODE_ENUM } from '@/constants/error.constant';
+
+/**
  * Services
  */
 import { taskService } from '@/services/task.service';
@@ -26,7 +31,6 @@ import {
   InternalServerError,
   NotFoundError,
 } from '@/lib/error';
-import { ERROR_CODE_ENUM } from '@/constants/error.constant';
 import logger from '@/lib/logger';
 
 const checkCommentOwnership = async (commentId: string, userId: string) => {
@@ -167,9 +171,18 @@ export const commentService = {
     userId: string,
     payload: {
       content?: string;
-      fileUrl?: null;
+      removeFile?: 'true';
     },
+    file?: Express.Multer.File,
   ) => {
+    if (
+      payload.content === undefined &&
+      payload.removeFile === undefined &&
+      !file
+    ) {
+      throw new BadRequestError('Update payload cannot be empty.');
+    }
+
     const comment = await checkCommentOwnership(commentId, userId);
 
     const dataToUpdate: {
@@ -184,40 +197,59 @@ export const commentService = {
       dataToUpdate.content = payload.content;
     }
 
-    if (payload.fileUrl === null && comment.fileUrl) {
+    if (file) {
+      if (comment.fileUrl) {
+        const { error: deleteError } = await supabase.storage
+          .from(config.SUPABASE_BUCKET_NAME)
+          .remove([comment.fileUrl]);
+
+        if (deleteError) {
+          logger.error('Failed to delete old file on update', {
+            path: comment.fileUrl,
+            error: deleteError,
+          });
+        }
+      }
+
+      const newFilePath = `${userId}/${comment.taskId}/${Date.now()}-${
+        file.originalname
+      }`;
+      const { error: uploadError } = await supabase.storage
+        .from(config.SUPABASE_BUCKET_NAME)
+        .upload(newFilePath, file.buffer, { contentType: file.mimetype });
+
+      if (uploadError) {
+        throw new InternalServerError(
+          `Supabase upload error: ${uploadError.message}`,
+        );
+      }
+
+      dataToUpdate.fileUrl = newFilePath;
+      dataToUpdate.fileName = file.originalname;
+      dataToUpdate.fileType = file.mimetype;
+      dataToUpdate.type = CommentType.MEDIA;
+    } else if (payload.removeFile === 'true' && comment.fileUrl) {
       const { error } = await supabase.storage
         .from(config.SUPABASE_BUCKET_NAME)
         .remove([comment.fileUrl]);
-
       if (error) {
-        logger.error('Failed to delete file from storage on update', {
+        logger.error('Failed to delete file on update', {
           path: comment.fileUrl,
           error,
         });
       }
-
       dataToUpdate.fileUrl = null;
       dataToUpdate.fileName = null;
       dataToUpdate.fileType = null;
-
-      if (!dataToUpdate.content && !comment.content) {
-        dataToUpdate.type = CommentType.TEXT;
-      }
-    }
-
-    const newContent = dataToUpdate.content ?? comment.content;
-    const newFileUrl = dataToUpdate.fileUrl === null ? null : comment.fileUrl;
-    if (!newContent && !newFileUrl) {
-      throw new BadRequestError(
-        'Comment cannot be empty. It must have content or a file.',
-      );
     }
 
     return prisma.comment.update({
-      where: {
-        id: commentId,
-      },
+      where: { id: commentId },
       data: dataToUpdate,
+      include: {
+        user: { select: { id: true, name: true, avatar: true } },
+        reactions: true,
+      },
     });
   },
 

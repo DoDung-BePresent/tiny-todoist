@@ -8,6 +8,7 @@ import { Router } from 'express';
  */
 import { upload } from '@/middlewares/upload.middleware';
 import { validate } from '@/middlewares/validate.middleware';
+import { authenticate } from '@/middlewares/auth.middleware';
 
 /**
  * Validations
@@ -20,6 +21,8 @@ import { commentValidation } from '@/validations/comment.validation';
 import { commentController } from '@/controllers/comment.controller';
 
 const commentRouter = Router({ mergeParams: true });
+
+commentRouter.use(authenticate);
 
 commentRouter.get(
   '/',
@@ -36,6 +39,7 @@ commentRouter.post(
 
 commentRouter.patch(
   '/:commentId',
+  upload.single('file'),
   validate(commentValidation.updateCommentSchema),
   commentController.updateComment,
 );

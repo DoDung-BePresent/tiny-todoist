@@ -25,11 +25,6 @@ export type Comment = {
   reactions: Reaction[];
 };
 
-export type CreateCommentPayload = {
-  content?: string;
-  file?: File;
-};
+export type CreateCommentPayload = FormData;
 
-export type UpdateCommentPayload = {
-  content: string;
-};
+export type UpdateCommentPayload = FormData;

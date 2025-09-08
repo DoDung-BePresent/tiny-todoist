@@ -49,7 +49,7 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
           <img
             src={comment.fileUrl}
             alt={comment.fileName ?? 'Uploaded image'}
-            className='max-h-64 max-w-full rounded-md border object-cover'
+            className='bg-accent-foreground max-h-64 max-w-full rounded-md border object-cover'
           />
         </a>
       );

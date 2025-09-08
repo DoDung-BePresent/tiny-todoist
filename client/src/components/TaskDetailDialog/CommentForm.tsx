@@ -5,12 +5,12 @@ import z from 'zod';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MicIcon, Paperclip, SmileIcon, XIcon } from 'lucide-react';
+import { MicIcon, Paperclip, SmileIcon, TrashIcon, XIcon } from 'lucide-react';
 
 /**
  * Types
  */
-import type { Comment } from '@/types/comment';
+import type { Comment, UpdateCommentPayload } from '@/types/comment';
 
 /**
  * Hooks
@@ -28,33 +28,34 @@ type CommentFormProps = {
   comment?: Comment;
   mode?: 'create' | 'edit';
   onDone: () => void;
-  initialValues?: Partial<z.infer<typeof formSchema>>;
 };
 
-const formSchema = z.object({
-  content: z.string().optional(),
-  file: z.instanceof(File).optional(),
-});
+const formSchema = z
+  .object({
+    content: z.string().trim().optional(),
+    file: z.instanceof(File).optional(),
+  })
+  .refine((data) => !!data.content || !!data.file, {
+    message: 'Comment must have content or a file.',
+    path: ['content'],
+  });
 
 export const CommentForm = ({
   taskId,
   comment,
   mode = 'create',
   onDone,
-  initialValues,
 }: CommentFormProps) => {
   const { createComment, updateComment } = useCommentMutations(taskId);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isExistingFileRemoved, setIsExistingFileRemoved] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues:
-      mode === 'edit'
-        ? {
-            content: comment?.content ?? '',
-          }
-        : initialValues,
+    defaultValues: {
+      content: comment?.content ?? '',
+    },
   });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,10 +64,14 @@ export const CommentForm = ({
     if (file) {
       setSelectedFile(file);
       form.setValue('file', file, { shouldValidate: true });
+
+      if (mode === 'edit' && comment?.fileUrl) {
+        setIsExistingFileRemoved(true);
+      }
     }
   };
 
-  const removeFile = () => {
+  const removeNewFile = () => {
     setSelectedFile(null);
     form.setValue('file', undefined, { shouldValidate: true });
     if (fileInputRef.current) {
@@ -74,37 +79,61 @@ export const CommentForm = ({
     }
   };
 
+  const removeExistingFile = () => {
+    setIsExistingFileRemoved(true);
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (mode === 'create') {
-      createComment.mutate(
-        {
-          content: values.content,
-          file: selectedFile ?? undefined,
+      const formData = new FormData();
+      if (values.content) {
+        formData.append('content', values.content);
+      }
+      if (selectedFile) {
+        formData.append('file', selectedFile);
+      }
+      createComment.mutate(formData, {
+        onSuccess: () => {
+          form.reset();
+          removeNewFile();
+          onDone?.();
         },
-        {
-          onSuccess: () => {
-            form.reset();
-            removeFile();
-            onDone?.();
-          },
-        },
-      );
+      });
     } else {
-      updateComment.mutate(
-        {
-          commentId: comment!.id,
-          payload: {
-            content: values.content!,
+      const formData = new FormData();
+      let hasChanges = false;
+
+      if (values.content !== comment?.content) {
+        formData.append('content', values.content ?? '');
+        hasChanges = true;
+      }
+
+      if (selectedFile) {
+        formData.append('file', selectedFile);
+        hasChanges = true;
+      } else if (isExistingFileRemoved) {
+        formData.append('removeFile', 'true');
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        updateComment.mutate(
+          { commentId: comment!.id, payload: formData },
+          {
+            onSuccess: () => {
+              onDone?.();
+            },
           },
-        },
-        {
-          onSuccess: () => {
-            onDone?.();
-          },
-        },
-      );
+        );
+      } else {
+        onDone?.();
+      }
     }
   };
+
+  const hasExistingFile =
+    mode === 'edit' && comment?.fileUrl && !isExistingFileRemoved;
+
   return (
     <Form {...form}>
       <form
@@ -128,6 +157,21 @@ export const CommentForm = ({
           )}
         />
 
+        {hasExistingFile && (
+          <div className='bg-accent/70 mb-2 flex items-center gap-2 rounded-sm p-2 text-sm'>
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              className='size-6 rounded-xs'
+              onClick={removeExistingFile}
+            >
+              <TrashIcon className='text-red-500' />
+            </Button>
+            <span className='flex-1'>{comment.fileName}</span>
+          </div>
+        )}
+
         {selectedFile && (
           <div className='bg-accent/50 text-muted-foreground mb-2 flex items-center justify-between rounded-md p-2 text-sm'>
             <span>{selectedFile.name}</span>
@@ -136,7 +180,7 @@ export const CommentForm = ({
               variant='ghost'
               size='sm'
               className='size-6 p-0'
-              onClick={removeFile}
+              onClick={removeNewFile}
             >
               <XIcon className='size-4' />
             </Button>
@@ -156,6 +200,7 @@ export const CommentForm = ({
               variant='ghost'
               className='text-muted-foreground size-8 rounded-sm hover:text-black'
               onClick={() => fileInputRef.current?.click()}
+              disabled={!!hasExistingFile}
             >
               <Paperclip className='size-4.5 stroke-1' />
             </Button>
@@ -196,12 +241,10 @@ export const CommentForm = ({
               }
             >
               {createComment.isPending || updateComment.isPending
-                ? mode === 'edit'
-                  ? 'Saving...'
-                  : 'Commenting...'
-                : mode === 'create'
-                  ? 'Comment'
-                  : 'Save'}
+                ? 'Saving...'
+                : mode === 'edit'
+                  ? 'Save'
+                  : 'Comment'}
             </Button>
           </div>
         </div>
