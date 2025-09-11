@@ -17,6 +17,12 @@ import { Link, useLocation, useParams } from 'react-router';
 import { SIDEBAR_LINKS } from '@/constants/sidebar';
 
 /**
+ * Hooks
+ */
+import { useTaskStatsQuery } from '@/hooks/useTasks';
+import { useProjectsQuery } from '@/hooks/useProject';
+
+/**
  * Components
  */
 import {
@@ -37,14 +43,12 @@ import { Button } from '@/components/ui/button';
 import { HelpButton } from '@/components/HelpButton';
 import { UserButton } from '@/components/UserButton';
 import { TaskDialog } from '@/components/TaskDialog';
-import { useTaskStatsQuery } from '@/hooks/useTasks';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { ProjectDialog } from '@/components/ProjectDialog';
-import { useProjectsQuery } from '@/hooks/useProject';
 import { ProjectDropdownMenu } from '@/components/ProjectDropdownMenu';
 
 export const AppSidebar = () => {
