@@ -6,6 +6,8 @@ import {
   CalendarIcon,
   CheckIcon,
   CircleIcon,
+  GitMergeIcon,
+  MessageSquareIcon,
   PenLineIcon,
   TrashIcon,
 } from 'lucide-react';
@@ -43,11 +45,18 @@ type TaskCardClassNames = {
 
 type TaskCardProps = {
   task: Task;
+  onOpenForm?: () => void;
+  onCloseForm?: () => void;
   classNames?: TaskCardClassNames;
 };
 
-export const TaskCard = ({ task, classNames }: TaskCardProps) => {
-  const { id, title, description, completed, dueDate, priority } = task;
+export const TaskCard = ({
+  task,
+  classNames,
+  onCloseForm,
+  onOpenForm,
+}: TaskCardProps) => {
+  const { id, title, description, completed, dueDate, priority, _count } = task;
 
   const { updateTask, deleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
@@ -69,7 +78,10 @@ export const TaskCard = ({ task, classNames }: TaskCardProps) => {
         type='card'
         mode='edit'
         task={task}
-        onDone={() => setShowTaskForm(false)}
+        onDone={() => {
+          setShowTaskForm(false);
+          onCloseForm?.();
+        }}
         className='mt-2'
       />
     );
@@ -112,21 +124,38 @@ export const TaskCard = ({ task, classNames }: TaskCardProps) => {
             <p className='text-muted-foreground truncate text-xs'>
               {description}
             </p>
-            {dueDate && (
-              <div
-                className={cn(
-                  'text-muted-foreground mt-1 flex items-center gap-1',
-                  getTaskDueDateColorClass(new Date(dueDate), completed),
-                )}
-              >
-                <CalendarIcon className='size-3' />
-                <span className='text-xs'>{formatCustomDate(dueDate)}</span>
-              </div>
-            )}
+            <div className='mt-1 flex items-center gap-2'>
+              {_count && _count.subtasks > 0 && (
+                <div className='text-muted-foreground flex items-center gap-1'>
+                  <GitMergeIcon className='size-3' />
+                  <span className='text-xs'>{_count.subtasks}</span>
+                </div>
+              )}
+              {dueDate && (
+                <div
+                  className={cn(
+                    'text-muted-foreground flex items-center gap-1',
+                    getTaskDueDateColorClass(new Date(dueDate), completed),
+                  )}
+                >
+                  <CalendarIcon className='size-3' />
+                  <span className='text-xs'>{formatCustomDate(dueDate)}</span>
+                </div>
+              )}
+              {_count && _count.comments > 0 && (
+                <div className='text-muted-foreground flex items-center gap-1'>
+                  <MessageSquareIcon className='size-3' />
+                  <span className='text-xs'>{_count.comments}</span>
+                </div>
+              )}
+            </div>
           </div>
           <div className='flex items-center gap-1'>
             <Button
-              onClick={() => setShowTaskForm(true)}
+              onClick={() => {
+                setShowTaskForm(true);
+                onOpenForm?.();
+              }}
               variant={'ghost'}
               className='size-7 rounded-sm text-blue-500 opacity-0 duration-100 ease-in-out group-hover/card:opacity-100 hover:text-blue-500'
             >

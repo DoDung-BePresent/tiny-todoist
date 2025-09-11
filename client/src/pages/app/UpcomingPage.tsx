@@ -1,7 +1,19 @@
-import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
-import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
-import { useTasksQuery } from '@/hooks/useTasks';
+/**
+ * Node modules
+ */
 import { AnimatePresence } from 'framer-motion';
+
+/**
+ * Hooks
+ */
+import { useTasksQuery } from '@/hooks/useTasks';
+
+/**
+ * Components
+ */
+import { TaskItem } from '@/components/TaskItem';
+import { TaskCardSkeleton } from '@/components/TaskCard';
+import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
 
 const UpcomingPage = () => {
   const { tasks, isLoading } = useTasksQuery('upcoming');
@@ -18,7 +30,7 @@ const UpcomingPage = () => {
               <TaskCardSkeleton key={index} />
             ))}
           {tasks?.map((task) => (
-            <TaskCard
+            <TaskItem
               key={task.id}
               task={task}
             />

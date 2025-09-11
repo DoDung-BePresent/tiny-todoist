@@ -10,7 +10,11 @@ export type Task = {
   userId: string;
   projectId: string | null;
   parentId: string | null;
-  subtasks?: Task[]
+  subtasks?: Task[];
+  _count?: {
+    comments: number;
+    subtasks: number;
+  };
   createdAt: string;
   updatedAt: string;
 };

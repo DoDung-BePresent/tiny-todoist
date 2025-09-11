@@ -1,10 +1,22 @@
-import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
-import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
-import { TaskForm } from '@/components/TaskForm';
-import { useTasksQuery } from '@/hooks/useTasks';
-import { AnimatePresence } from 'framer-motion';
-import { PlusIcon } from 'lucide-react';
+/**
+ * Node modules
+ */
 import { useState } from 'react';
+import { PlusIcon } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+
+/**
+ * Hooks
+ */
+import { useTasksQuery } from '@/hooks/useTasks';
+
+/**
+ * Components
+ */
+import { TaskForm } from '@/components/TaskForm';
+import { TaskItem } from '@/components/TaskItem';
+import { TaskCardSkeleton } from '@/components/TaskCard';
+import { Page, PageHeader, PageList, PageTitle } from '@/components/Page';
 
 const InboxPage = () => {
   const { tasks, isLoading } = useTasksQuery();
@@ -21,7 +33,7 @@ const InboxPage = () => {
               <TaskCardSkeleton key={index} />
             ))}
           {tasks?.map((task) => (
-            <TaskCard
+            <TaskItem
               key={task.id}
               task={task}
             />

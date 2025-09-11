@@ -13,6 +13,7 @@ import { loginSchema, registerSchema } from '@/validations/auth.validation';
 import config from '@/config/env.config';
 import { asyncHandler } from '@/middlewares/error.middleware';
 
+// TODO: Remove validations in this controller!
 export const authController = {
   register: asyncHandler(async (req, res, next) => {
     const { email, password } = registerSchema.parse(req.body);

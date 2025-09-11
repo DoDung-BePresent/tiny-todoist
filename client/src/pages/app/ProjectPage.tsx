@@ -10,6 +10,7 @@ import { AnimatePresence } from 'framer-motion';
  * Hooks
  */
 import { useTasksQuery } from '@/hooks/useTasks';
+import { useProjectQuery } from '@/hooks/useProject';
 
 /**
  * Assets
@@ -24,7 +25,7 @@ import { useAuth } from '@/hooks/useAuth';
 /**
  * Components
  */
-import { TaskCard, TaskCardSkeleton } from '@/components/TaskCard';
+import { TaskCardSkeleton } from '@/components/TaskCard';
 import {
   Page,
   PageHeader,
@@ -34,7 +35,7 @@ import {
 } from '@/components/Page';
 import { Button } from '@/components/ui/button';
 import { TaskForm } from '@/components/TaskForm';
-import { useProjectQuery } from '@/hooks/useProject';
+import { TaskItem } from '@/components/TaskItem';
 
 const ProjectPage = () => {
   const { id } = useParams();
@@ -111,7 +112,7 @@ const ProjectPage = () => {
               <TaskCardSkeleton key={index} />
             ))}
           {tasks?.map((task) => (
-            <TaskCard
+            <TaskItem
               key={task.id}
               task={task}
             />

@@ -42,6 +42,16 @@ export const taskService = {
       createdAt: 'desc' as const,
     };
 
+    const includePayload = {
+      subtasks: true,
+      _count: {
+        select: {
+          comments: true,
+          subtasks: true,
+        },
+      },
+    };
+
     if (filter?.startsWith('project_')) {
       const projectId = filter.split('_')[1];
 
@@ -53,9 +63,7 @@ export const taskService = {
           projectId,
           completed: false,
         },
-        include: {
-          subtasks: true,
-        },
+        include: includePayload,
         orderBy,
       });
     }
@@ -71,9 +79,7 @@ export const taskService = {
               lte: endOfDay(new Date()),
             },
           },
-          include: {
-            subtasks: true,
-          },
+          include: includePayload,
           orderBy,
         });
       case 'upcoming':
@@ -85,9 +91,7 @@ export const taskService = {
               gt: endOfDay(new Date()),
             },
           },
-          include: {
-            subtasks: true,
-          },
+          include: includePayload,
           orderBy,
         });
       case 'completed':
@@ -96,9 +100,7 @@ export const taskService = {
             userId,
             completed: true,
           },
-          include: {
-            subtasks: true,
-          },
+          include: includePayload,
           orderBy,
         });
       default:
@@ -109,9 +111,7 @@ export const taskService = {
             projectId: null,
             parentId: null,
           },
-          include: {
-            subtasks: true,
-          },
+          include: includePayload,
           orderBy,
         });
     }
