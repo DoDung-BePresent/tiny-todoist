@@ -57,8 +57,7 @@ const formSchema = z
 
 const RegisterPage = () => {
   const { register, loginWithGithub } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

@@ -1,6 +1,7 @@
 /**
  * Node modules
  */
+import { useNavigate } from 'react-router';
 import { ChevronDown, LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react';
 
 /**
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export const UserButton = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const avatarChar = user?.name?.charAt(0).toUpperCase() || '';
   const { bg, border } = getAvatarColor(avatarChar);
@@ -66,19 +68,22 @@ export const UserButton = () => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/app/settings')}>
             <SettingsIcon
               className='size-5'
               strokeWidth={1.5}
             />
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem className='group/drop-down-menu-item'>
             <PlusIcon
               className='size-5'
               strokeWidth={1.5}
             />
-            Add a team
+            <span>Add a team</span>
+            <span className='ml-auto hidden rounded-xs bg-black/40 p-1 py-0.5 text-xs text-white group-hover/drop-down-menu-item:block'>
+              NOT IMPLEMENTED
+            </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
