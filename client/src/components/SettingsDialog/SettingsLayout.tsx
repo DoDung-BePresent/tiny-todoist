@@ -24,7 +24,7 @@ const navItems = [
 ];
 
 export const SettingsLayout = () => {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
 
   const currentTitle = navItems.find(({ to }) => to === pathname)?.label;
 
@@ -37,6 +37,11 @@ export const SettingsLayout = () => {
             <NavLink
               key={item.to}
               to={item.to}
+              replace={true}
+              state={{
+                backgroundLocation: state?.backgroundLocation,
+                originPath: state?.originPath,
+              }}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm',

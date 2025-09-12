@@ -41,9 +41,12 @@ const profileSchema = z.object({
 
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(1, 'Current password is required.'),
-    newPassword: z.string().min(8, 'Password must be at least 8 characters.'),
-    confirmPassword: z.string(),
+    currentPassword: z.string().trim().min(1, 'Current password is required.'),
+    newPassword: z
+      .string()
+      .trim()
+      .min(8, 'Password must be at least 8 characters.'),
+    confirmPassword: z.string().trim(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "New passwords don't match.",
@@ -117,7 +120,10 @@ export const AccountSettings = () => {
             className='size-16'
             style={{ background: bg, border: `2px solid ${border}` }}
           >
-            <AvatarImage src={avatarSrc ?? undefined} />
+            <AvatarImage
+              src={avatarSrc ?? undefined}
+              className='object-center'
+            />
             <AvatarFallback
               className='text-2xl'
               style={{ background: bg, borderColor: border, color: border }}
@@ -178,14 +184,20 @@ export const AccountSettings = () => {
               </FormItem>
             )}
           />
-          <Button
-            type='submit'
-            size='sm'
-            disabled={!profileForm.formState.isDirty || updateProfile.isPending}
-            className='rounded-sm'
-          >
-            {updateProfile.isPending ? 'Saving...' : 'Save Name'}
-          </Button>
+          {profileForm.formState.isDirty && (
+            <Button
+              type='submit'
+              size='sm'
+              disabled={
+                !profileForm.formState.isDirty ||
+                !profileForm.formState.isValid ||
+                updateProfile.isPending
+              }
+              className='rounded-sm'
+            >
+              {updateProfile.isPending ? 'Saving...' : 'Save Name'}
+            </Button>
+          )}
         </form>
       </Form>
 
@@ -308,7 +320,11 @@ export const AccountSettings = () => {
           />
           <Button
             type='submit'
-            disabled={updatePassword.isPending}
+            disabled={
+              updatePassword.isPending ||
+              !passwordForm.formState.isValid ||
+              !passwordForm.formState.isDirty
+            }
             size='sm'
             className='rounded-sm'
           >

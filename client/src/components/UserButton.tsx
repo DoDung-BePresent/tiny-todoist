@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ChevronDown, LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react';
 
 /**
@@ -30,6 +30,7 @@ import {
 
 export const UserButton = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const avatarChar = user?.name?.charAt(0).toUpperCase() || '';
   const { bg, border } = getAvatarColor(avatarChar);
@@ -68,12 +69,20 @@ export const UserButton = () => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => navigate('/app/settings')}>
-            <SettingsIcon
-              className='size-5'
-              strokeWidth={1.5}
-            />
-            Settings
+          <DropdownMenuItem asChild>
+            <Link
+              to='/app/settings/account'
+              state={{
+                backgroundLocation: location,
+                originPath: location.pathname,
+              }}
+            >
+              <SettingsIcon
+                className='size-5'
+                strokeWidth={1.5}
+              />
+              Settings
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className='group/drop-down-menu-item'>
             <PlusIcon

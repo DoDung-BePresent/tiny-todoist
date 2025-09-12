@@ -122,7 +122,7 @@ export const userService = {
       where: {
         provider_providerAccountId: {
           provider: 'credentials',
-          providerAccountId: userId,
+          providerAccountId: account.providerAccountId,
         },
       },
       data: { password: hashedPassword },

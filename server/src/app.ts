@@ -68,7 +68,7 @@ app.use(
     threshold: 1024, // Only compress response larger than 1KB
   }),
 );
-app.use(limiter);
+// app.use(limiter);
 
 app.use('/api/v1', v1Routes);
 

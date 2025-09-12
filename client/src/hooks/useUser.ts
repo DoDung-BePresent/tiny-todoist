@@ -15,27 +15,17 @@ import { userService } from '@/services/userService';
 import { extractErrorDetails } from '@/lib/error';
 
 /**
- * Stores
- */
-import { useAuthStore } from '@/stores/auth';
-
-/**
  * Types
  */
 import type { UpdatePasswordPayload } from '@/types/user';
 
 export const useUserMutations = () => {
   const queryClient = useQueryClient();
-  const { setAuth } = useAuthStore();
 
   const updateProfile = useMutation({
     mutationFn: (payload: FormData) => userService.updateProfile(payload),
     onSuccess: () => {
-      const updatedUser = response.data.user;
-      setAuth({
-        user: updatedUser,
-        accessToken: useAuthStore.getState().accessToken,
-      });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
       toast.success('Profile updated successfully!');
     },
     onError: (error) => {

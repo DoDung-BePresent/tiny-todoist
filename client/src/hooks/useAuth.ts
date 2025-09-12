@@ -3,7 +3,7 @@
  */
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Services
@@ -24,10 +24,39 @@ import { useAuthStore } from '@/stores/auth';
  * Lib
  */
 import { extractErrorDetails } from '@/lib/error';
+import { useEffect } from 'react';
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { setAuth, clearAuth, user } = useAuthStore();
+  const queryClient = useQueryClient();
+  const { setAuth, clearAuth, user, accessToken } = useAuthStore();
+
+  const {
+    data: profileData,
+    isSuccess,
+    isError,
+    isLoading: isAuthLoading,
+  } = useQuery({
+    queryKey: ['me'],
+    queryFn: authService.getProfile,
+    enabled: !!accessToken,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (isSuccess && profileData && accessToken) {
+      setAuth({ user: profileData.data.user, accessToken });
+    }
+  }, [isSuccess, profileData, accessToken, setAuth]);
+
+  useEffect(() => {
+    if (isError) {
+      clearAuth();
+      queryClient.clear();
+    }
+  }, [isError, clearAuth, queryClient]);
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => authService.login(payload),
@@ -70,6 +99,7 @@ export const useAuth = () => {
       console.error('Logout failed:', error);
     } finally {
       clearAuth();
+      queryClient.clear();
       toast.success('Logged out successfully');
       navigate('/login');
     }
@@ -77,6 +107,8 @@ export const useAuth = () => {
 
   return {
     user,
+    accessToken,
+    isAuthLoading,
     login: loginMutation,
     register: registerMutation,
     loginWithGithub,
