@@ -9,6 +9,16 @@ import { Eye, EyeOff } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 /**
+ * Assets
+ */
+import projectRedImage from '@/assets/project-red.avif';
+
+/**
+ * Hooks
+ */
+import { useAuth } from '@/hooks/useAuth';
+
+/**
  * Components
  */
 import {
@@ -22,12 +32,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-
-/**
- * Assets
- */
-import projectRedImage from '@/assets/project-red.avif';
-import { useAuth } from '@/hooks/useAuth';
 
 const formSchema = z
   .object({
@@ -57,6 +61,8 @@ const formSchema = z
 
 const RegisterPage = () => {
   const { register, loginWithGithub } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

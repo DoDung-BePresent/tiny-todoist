@@ -8,7 +8,7 @@ type AuthState = {
 };
 
 type AuthActions = {
-  setAuth: (data: { user: User; accessToken: string }) => void;
+  setAuth: (data: { user: User | null; accessToken: string | null }) => void;
   clearAuth: () => void;
 };
 

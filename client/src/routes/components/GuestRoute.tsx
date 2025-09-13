@@ -4,14 +4,23 @@
 import { Navigate, Outlet } from 'react-router';
 
 /**
- * Stores
+ * Hooks
  */
-import { useAuthStore } from '@/stores/auth';
+import { useAuth } from '@/hooks/useAuth';
+
+/**
+ * Components
+ */
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export const GuestRoute = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { accessToken, isAuthLoading } = useAuth();
 
-  if (isAuthenticated) {
+  if (isAuthLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (accessToken) {
     return (
       <Navigate
         to='/app/today'

@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { ChevronDown, LogOutIcon, PlusIcon, SettingsIcon } from 'lucide-react';
 
 /**
@@ -29,7 +29,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export const UserButton = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
   const avatarChar = user?.name?.charAt(0).toUpperCase() || '';

@@ -16,6 +16,7 @@ const config = {
   API_URL: process.env.API_URL,
   CLIENT_URL: process.env.CLIENT_URL,
   DIRECT_URL: process.env.DIRECT_URL,
+  // FIXME: ủa sao fix cứng vậy trời?
   WHITELIST_ORIGINS: ['http://localhost:5173'],
 
   // LOGS

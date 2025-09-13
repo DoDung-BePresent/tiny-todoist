@@ -10,7 +10,7 @@ import { MicIcon, Paperclip, SmileIcon, TrashIcon, XIcon } from 'lucide-react';
 /**
  * Types
  */
-import type { Comment, UpdateCommentPayload } from '@/types/comment';
+import type { Comment } from '@/types/comment';
 
 /**
  * Hooks
