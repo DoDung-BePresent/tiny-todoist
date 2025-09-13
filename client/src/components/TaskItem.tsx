@@ -57,6 +57,7 @@ export const TaskItem = ({ task }: TaskItemProps) => {
             transition={{ duration: 0.2 }}
             className='pl-7'
           >
+            {/* FIXME: Complete task van con hiem thi o day a */}
             {task.subtasks?.map((subtask) => (
               <TaskCard
                 key={subtask.id}
