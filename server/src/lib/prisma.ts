@@ -47,7 +47,7 @@ const prisma: PrismaClient<typeof clientOptions> =
     ],
   });
 
-if (config.NODE_ENV === 'development' && config.LOG_QUERIES === 'true') {
+if (config.NODE_ENV === 'development' && config.LOG_TO_FILE === 'true') {
   prisma.$on('query', (e: any) => {
     if (e.duration > 1000) {
       logger.warn(`🐌 Slow Query detected:`, {
