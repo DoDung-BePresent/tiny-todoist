@@ -16,11 +16,12 @@ const config = {
   API_URL: process.env.API_URL,
   CLIENT_URL: process.env.CLIENT_URL,
   DIRECT_URL: process.env.DIRECT_URL,
-  // FIXME: ủa sao fix cứng vậy trời?
-  WHITELIST_ORIGINS: ['http://localhost:5173'],
+  WHITELIST_ORIGINS: (process.env.CORS_ALLOWED_ORIGINS || '')
+    .split(',')
+    .filter(Boolean),
 
   // LOGS
-  LOG_QUERIES: process.env.LOG_QUERIES || 'false',
+  LOG_TO_FILE: process.env.LOG_TO_FILE || 'true',
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 
   // TOKENS
