@@ -1,4 +1,9 @@
 /**
+ * Node modules
+ */
+import { Link } from 'react-router';
+
+/**
  * Components
  */
 import { Logo } from '@/components/Logo';
@@ -6,7 +11,9 @@ import { Logo } from '@/components/Logo';
 export const Header = () => {
   return (
     <header className='py-5'>
-      <Logo />
+      <Link to={'/'}>
+        <Logo />
+      </Link>
     </header>
   );
 };

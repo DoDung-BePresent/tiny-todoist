@@ -52,7 +52,7 @@ const passwordSchema = z
     path: ['confirmPassword'],
   });
 
-export const AccountSettings = () => {
+const AccountSettings = () => {
   const { user } = useAuth();
   const { updateProfile, updatePassword } = useUserMutations();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -334,3 +334,5 @@ export const AccountSettings = () => {
     </div>
   );
 };
+
+export default AccountSettings;

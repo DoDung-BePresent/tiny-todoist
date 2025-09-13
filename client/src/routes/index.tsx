@@ -1,25 +1,22 @@
 /**
  * Node modules
  */
-import { createBrowserRouter, Navigate } from 'react-router';
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 
 /**
  * Layouts
  */
 import AppLayout from '@/layouts/AppLayout';
+import BaseLayout from '@/layouts/BaseLayout';
 import AuthLayout from '@/layouts/AuthLayout';
-
-/**
- * Types
- */
-import type { RouteObject } from 'react-router';
 
 /**
  * Components
  */
 import { GuestRoute } from './components/GuestRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { SettingsDialog } from '@/components/SettingsDialog';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 /**
  * Pages
@@ -31,25 +28,54 @@ import LoginPage from '@/pages/auth/LoginPage';
 import UpcomingPage from '@/pages/app/UpcomingPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import RootErrorBoundary from '@/pages/RootErrorBoundary';
-import GithubCallbackPage from '@/pages/auth/GithubCallbackPage';
-import CompletedPage from '@/pages/app/CompletedPage';
-import ProjectPage from '@/pages/app/ProjectPage';
-import { AccountSettings } from '@/pages/setting/AccountSetting';
+
+const GithubCallbackPage = lazy(
+  () => import('@/pages/auth/GithubCallbackPage'),
+);
+const CompletedPage = lazy(() => import('@/pages/app/CompletedPage'));
+const ProjectPage = lazy(() => import('@/pages/app/ProjectPage'));
+const SettingsDialog = lazy(() => import('@/components/SettingsDialog'));
+const AccountSettings = lazy(() => import('@/pages/setting/AccountSetting'));
+
+const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
+);
 
 const rootRoutesChildren: RouteObject[] = [
   {
-    index: true,
-    element: <HomePage />,
+    element: <BaseLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <LazyWrapper>
+            <HomePage />
+          </LazyWrapper>
+        ),
+      },
+    ],
   },
   {
-    path: 'register',
-    element: <RegisterPage />,
+    element: <AuthLayout />,
+    children: [
+      {
+        path: 'register',
+        element: <RegisterPage />,
+      },
+      {
+        path: 'login',
+        element: <LoginPage />,
+      },
+    ],
   },
   {
-    path: 'login',
-    element: <LoginPage />,
+    path: '/auth/callback',
+    element: (
+      <LazyWrapper>
+        <GithubCallbackPage />
+      </LazyWrapper>
+    ),
   },
-  { path: '/auth/callback', element: <GithubCallbackPage /> },
 ];
 
 const appRoutesChildren: RouteObject[] = [
@@ -67,15 +93,27 @@ const appRoutesChildren: RouteObject[] = [
   },
   {
     path: 'completed',
-    element: <CompletedPage />,
+    element: (
+      <LazyWrapper>
+        <CompletedPage />
+      </LazyWrapper>
+    ),
   },
   {
     path: 'projects/:id',
-    element: <ProjectPage />,
+    element: (
+      <LazyWrapper>
+        <ProjectPage />
+      </LazyWrapper>
+    ),
   },
   {
     path: 'settings',
-    element: <SettingsDialog />,
+    element: (
+      <LazyWrapper>
+        <SettingsDialog />
+      </LazyWrapper>
+    ),
     children: [
       {
         index: true,
@@ -86,7 +124,14 @@ const appRoutesChildren: RouteObject[] = [
           />
         ),
       },
-      { path: 'account', element: <AccountSettings /> },
+      {
+        path: 'account',
+        element: (
+          <LazyWrapper>
+            <AccountSettings />
+          </LazyWrapper>
+        ),
+      },
       { path: '*', element: <h2>Coming soon</h2> },
     ],
   },
@@ -97,12 +142,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <GuestRoute />,
     errorElement: <RootErrorBoundary />,
-    children: [
-      {
-        element: <AuthLayout />,
-        children: rootRoutesChildren,
-      },
-    ],
+    children: rootRoutesChildren,
   },
   {
     path: '/app',

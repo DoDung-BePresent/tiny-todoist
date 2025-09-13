@@ -5,7 +5,7 @@ import z from 'zod';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2Icon } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 /**
@@ -189,7 +189,11 @@ const RegisterPage = () => {
                       disabled={register.isPending}
                       className='w-full'
                     >
-                      {register.isPending ? 'Creating ...' : 'Create'}
+                      {register.isPending ? (
+                        <Loader2Icon className='animate-spin' />
+                      ) : (
+                        'Create'
+                      )}
                     </Button>
                     <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                       <span className='bg-card text-muted-foreground relative z-10 px-2'>

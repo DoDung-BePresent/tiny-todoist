@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
 import { SettingsLayout } from './SettingsLayout';
 
-export const SettingsDialog = () => {
+const SettingsDialog = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,3 +31,5 @@ export const SettingsDialog = () => {
     </Dialog>
   );
 };
+
+export default SettingsDialog;
