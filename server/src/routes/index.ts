@@ -13,6 +13,10 @@ import projectRouter from '@/routes/project.route';
 
 const router = Router();
 
+router.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 router.use('/auth', authRouter);
 router.use('/users', userRoutes);
 router.use('/tasks', taskRouter);
