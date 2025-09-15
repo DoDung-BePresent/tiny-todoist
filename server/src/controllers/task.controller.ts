@@ -1,7 +1,17 @@
-import { taskValidation } from '@/validations/task.validation';
-import { asyncHandler } from '@/middlewares/error.middleware';
-import { taskService } from '@/services/task.service';
+/**
+ * Constants
+ */
 import { STATUS_CODE } from '@/constants/error.constant';
+
+/**
+ * Middlewares
+ */
+import { asyncHandler } from '@/middlewares/error.middleware';
+
+/**
+ * Services
+ */
+import { taskService } from '@/services/task.service';
 
 export const taskController = {
   createTask: asyncHandler(async (req, res) => {

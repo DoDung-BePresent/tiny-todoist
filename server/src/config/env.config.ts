@@ -8,7 +8,9 @@ import dotenv from 'dotenv';
  */
 import type ms from 'ms';
 
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env',
+});
 
 const config = {
   PORT: process.env.PORT || 3000,

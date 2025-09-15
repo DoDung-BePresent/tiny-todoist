@@ -85,7 +85,7 @@ export const commentService = {
             );
           if (error) {
             logger.error('Error creating signed URL', { error });
-            comment.fileUrl = null; // Prevent sending a broken path to the client
+            comment.fileUrl = null;
           } else {
             comment.fileUrl = data.signedUrl;
           }

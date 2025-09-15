@@ -1,8 +1,8 @@
 /**
  * Node modules
  */
-import bcrypt from 'bcryptjs';
 import sharp from 'sharp';
+import axios from 'axios';
 
 /**
  * Configs
@@ -89,7 +89,6 @@ export const userService = {
       select: { id: true, name: true, email: true, avatar: true },
     });
   },
-
   updatePassword: async (
     userId: string,
     payload: { currentPassword?: string; newPassword?: string },
@@ -127,5 +126,34 @@ export const userService = {
       },
       data: { password: hashedPassword },
     });
+  },
+  downloadImageAndUploadToStorage: async (
+    imageUrl: string,
+    userId: string,
+  ): Promise<string> => {
+    const response = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+    });
+
+    const buffer = Buffer.from(response.data, 'binary');
+
+    const filePath = `${userId}/${Date.now()}.webp`;
+
+    const optimizedBuffer = await sharp(buffer)
+      .resize({ width: 256, height: 256, fit: 'cover' })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const { error } = await supabase.storage
+      .from(config.SUPABASE_AVATAR_BUCKET_NAME)
+      .upload(filePath, optimizedBuffer, { contentType: 'image/webp' });
+
+    if (error) {
+      throw new InternalServerError(
+        `Supabase upload error: ${error.message}`,
+        ERROR_CODE_ENUM.FILE_STORAGE_ERROR,
+      );
+    }
+    return filePath;
   },
 };

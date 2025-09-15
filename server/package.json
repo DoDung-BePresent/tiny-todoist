@@ -39,6 +39,7 @@
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "@supabase/supabase-js": "^2.57.2",
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
