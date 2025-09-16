@@ -109,11 +109,7 @@ const appRoutesChildren: RouteObject[] = [
   },
   {
     path: 'settings',
-    element: (
-      <LazyWrapper>
-        <SettingsDialog />
-      </LazyWrapper>
-    ),
+    element: <SettingsDialog />,
     children: [
       {
         index: true,
@@ -126,11 +122,7 @@ const appRoutesChildren: RouteObject[] = [
       },
       {
         path: 'account',
-        element: (
-          <LazyWrapper>
-            <AccountSettings />
-          </LazyWrapper>
-        ),
+        element: <AccountSettings />,
       },
       { path: '*', element: <h2>Coming soon</h2> },
     ],

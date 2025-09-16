@@ -77,6 +77,7 @@ export const authService = {
     if (!credentialsAccount || !credentialsAccount.password) {
       throw new BadRequestError(
         'This account was created using a different method. Please log in with your social account',
+        ERROR_CODE_ENUM.ACCOUNT_EXISTS_WITH_DIFFERENT_PROVIDER,
       );
     }
 

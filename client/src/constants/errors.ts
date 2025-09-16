@@ -17,6 +17,8 @@ export const ERROR_MESSAGES = {
   TOKEN_EXPIRED: 'Your session has expired. Please log in again',
   INVALID_TOKEN: 'Invalid authentication token. Please log in again',
   USER_NOT_FOUND: 'No account found with this email address',
+  ACCOUNT_EXISTS_WITH_DIFFERENT_PROVIDER:
+    'This account was created using a different method. Please log in with your social account',
 
   // Todoist specific
   WORKSPACE_NOT_FOUND: 'Workspace not found',
