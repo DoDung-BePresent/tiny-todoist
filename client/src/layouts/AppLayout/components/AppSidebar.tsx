@@ -139,7 +139,10 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <Collapsible className='group/collapsible'>
+        <Collapsible
+          defaultOpen={true}
+          className='group/collapsible'
+        >
           <SidebarGroup className='gap-2'>
             <SidebarGroupLabel asChild>
               <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary !h-8.5 !text-sm'>

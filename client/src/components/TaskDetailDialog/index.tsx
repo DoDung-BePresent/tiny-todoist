@@ -137,6 +137,7 @@ export const TaskDetailDialog = ({
                 onOpenChange={onOpenChange}
                 currentProject={currentProject}
                 onSubmit={onSubmit}
+                isSaving={updateTask.isPending}
               />
             </div>
             <div className='col-span-1'>

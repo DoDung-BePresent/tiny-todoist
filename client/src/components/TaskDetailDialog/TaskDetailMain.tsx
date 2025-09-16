@@ -42,6 +42,7 @@ type TaskDetailMain = {
   onOpenChange: (open: boolean) => void;
   currentProject: Project | undefined;
   onSubmit: (values: any) => void;
+  isSaving: boolean;
 };
 
 export const TaskDetailMain = ({
@@ -50,16 +51,17 @@ export const TaskDetailMain = ({
   onOpenChange,
   onSubmit,
   currentProject,
+  isSaving,
 }: TaskDetailMain) => {
   const { user } = useAuth();
-  const { updateTask } = useTaskMutations();
+  const { updateTask: toggleCompleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showSubTaskForm, setShowSubTaskForm] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
-    updateTask.mutate(
+    toggleCompleteTask.mutate(
       {
         taskId: task.id,
         payload: {
@@ -76,7 +78,7 @@ export const TaskDetailMain = ({
 
   return (
     <div className='p-5 pt-2 pr-0'>
-      <div className='scrollbar-track-transparent scrollbar-thumb-[#c1c1c1] hover:scrollbar-thumb-black/50 scrollbar-thin scrollbar-thumb-rounded-full max-h-[70vh] overflow-y-auto [scrollbar-gutter:stable] pr-2'>
+      <div className='scrollbar-track-transparent scrollbar-thumb-[#c1c1c1] hover:scrollbar-thumb-black/50 scrollbar-thin scrollbar-thumb-rounded-full max-h-[70vh] overflow-y-auto pr-2 [scrollbar-gutter:stable]'>
         <div className='flex items-start gap-1.5'>
           <CheckButton
             completed={task.completed}
@@ -129,7 +131,7 @@ export const TaskDetailMain = ({
               variant='secondary'
               size='sm'
               className='rounded-[6px]'
-              disabled={updateTask.isPending}
+              disabled={isSaving}
             >
               Cancel
             </Button>
@@ -138,9 +140,9 @@ export const TaskDetailMain = ({
               type='button'
               size='sm'
               className='min-w-16 rounded-[6px]'
-              disabled={updateTask.isPending || !form.formState.isDirty}
+              disabled={isSaving || !form.formState.isDirty}
             >
-              {updateTask.isPending ? 'Saving...' : 'Save'}
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>
         )}
