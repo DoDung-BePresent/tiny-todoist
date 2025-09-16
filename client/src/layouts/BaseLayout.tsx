@@ -154,7 +154,7 @@ const BaseLayout = () => {
             </SheetContent>
           </Sheet>
         </header>
-        <main className='container'>
+        <main className='container mx-auto'>
           <Outlet />
         </main>
       </div>
@@ -163,17 +163,23 @@ const BaseLayout = () => {
 
   return (
     <div className='bg-[#fefdfc]'>
-      <div className='container'>
+      <div className='container mx-auto max-w-[84rem]'>
         <header className='flex items-center justify-between py-4'>
           <Logo />
           <div className='flex items-center gap-4'>
             <Button
+              size='lg'
               variant={'ghost'}
               onClick={() => navigate('/login')}
+              className='text-base px-4 h-9.5'
             >
               Login
             </Button>
-            <Button onClick={() => navigate('/register')}>
+            <Button
+              size='lg'
+              onClick={() => navigate('/register')}
+              className='text-base px-4 h-9.5'
+            >
               Try it for free
             </Button>
           </div>
