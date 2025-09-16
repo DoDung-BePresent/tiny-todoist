@@ -1,7 +1,7 @@
 /**
  * Node modules
  */
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 
 /**
@@ -16,7 +16,7 @@ import AuthLayout from '@/layouts/AuthLayout';
  */
 import { GuestRoute } from './components/GuestRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { LazyWrapper } from './components/LazyWrapper';
 
 /**
  * Pages
@@ -28,6 +28,7 @@ import LoginPage from '@/pages/auth/LoginPage';
 import UpcomingPage from '@/pages/app/UpcomingPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import RootErrorBoundary from '@/pages/RootErrorBoundary';
+import { PageLoader } from '@/components/PageLoader';
 
 const GithubCallbackPage = lazy(
   () => import('@/pages/auth/GithubCallbackPage'),
@@ -36,10 +37,6 @@ const CompletedPage = lazy(() => import('@/pages/app/CompletedPage'));
 const ProjectPage = lazy(() => import('@/pages/app/ProjectPage'));
 const SettingsDialog = lazy(() => import('@/components/SettingsDialog'));
 const AccountSettings = lazy(() => import('@/pages/setting/AccountSetting'));
-
-const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
-);
 
 const rootRoutesChildren: RouteObject[] = [
   {
@@ -94,7 +91,7 @@ const appRoutesChildren: RouteObject[] = [
   {
     path: 'completed',
     element: (
-      <LazyWrapper>
+      <LazyWrapper fallback={<PageLoader />}>
         <CompletedPage />
       </LazyWrapper>
     ),
@@ -102,7 +99,7 @@ const appRoutesChildren: RouteObject[] = [
   {
     path: 'projects/:id',
     element: (
-      <LazyWrapper>
+      <LazyWrapper fallback={<PageLoader />}>
         <ProjectPage />
       </LazyWrapper>
     ),
