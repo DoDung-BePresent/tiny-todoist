@@ -94,11 +94,13 @@ export const TaskDetailSidebar = ({ form }: TaskDetailSidebar) => {
                             )?.color
                           }
                         />
-                        {
-                          projects?.find(
-                            (project) => project.id === field.value,
-                          )?.name
-                        }
+                        <span className='w-32 flex-1 truncate'>
+                          {
+                            projects?.find(
+                              (project) => project.id === field.value,
+                            )?.name
+                          }
+                        </span>
                       </div>
                     ) : (
                       <div className='flex w-full items-center gap-2'>
@@ -145,7 +147,7 @@ export const TaskDetailSidebar = ({ form }: TaskDetailSidebar) => {
                             strokeWidth={1.5}
                             color={project.color}
                           />
-                          <span>{project.name}</span>
+                          <span className='truncate'>{project.name}</span>
                           <CheckIcon
                             className={cn(
                               'text-primary ml-auto',

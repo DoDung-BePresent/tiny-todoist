@@ -177,7 +177,9 @@ export const AppSidebar = () => {
                             strokeWidth={1.5}
                             color={project.color}
                           />
-                          <span className='flex-1'>{project.name}</span>
+                          <span className='flex-1 truncate'>
+                            {project.name}
+                          </span>
                           <ProjectDropdownMenu project={project}>
                             <Button
                               variant='ghost'

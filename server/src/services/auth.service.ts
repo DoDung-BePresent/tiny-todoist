@@ -11,6 +11,11 @@ import { BadRequestError, ConflictError } from '@/lib/error';
 import { ERROR_CODE_ENUM } from '@/constants/error.constant';
 
 /**
+ * Services
+ */
+import { seedService } from '@/services/seed.service';
+
+/**
  * Types
  */
 type CredentialPayload = { email: string; password: string };
@@ -53,6 +58,9 @@ export const authService = {
         updatedAt: true,
       },
     });
+
+    seedService.seedInitialDataForUser(user.id);
+
     return user;
   },
   login: async ({ email, password }: CredentialPayload) => {
