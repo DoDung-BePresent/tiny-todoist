@@ -12,6 +12,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
  */
 import { useTaskMutations, useTaskQuery } from '@/hooks/useTasks';
 import { useProjectsQuery } from '@/hooks/useProject';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+/**
+ * Libs
+ */
+import { cn } from '@/lib/utils';
 
 /**
  * Components
@@ -51,8 +57,7 @@ export const TaskDetailDialog = ({
   const { task, isLoading } = useTaskQuery(taskId);
   const { projects } = useProjectsQuery();
   const { updateTask } = useTaskMutations();
-
-  console.log(task);
+  const isMobile = useIsMobile();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,7 +80,6 @@ export const TaskDetailDialog = ({
     updateTask.mutate({ taskId: task.id, payload: values });
   };
 
-  // TODO: Can nhac xem co the dung hook cua project de lay project khong! Output: Project | null
   const currentProject = projects?.find((p) => p.id === task?.projectId);
 
   return (
@@ -86,7 +90,10 @@ export const TaskDetailDialog = ({
       <DialogOverlay className='bg-black/50' />
       <DialogContent
         showCloseButton={false}
-        className='!max-w-4xl gap-0 p-0'
+        className={cn(
+          '!max-w-4xl gap-0 p-0',
+          isMobile && 'h-fit max-h-screen w-full',
+        )}
       >
         <DialogHeader className='mb-0 border-b p-2'>
           <div className='flex w-full items-center justify-between'>
@@ -105,7 +112,7 @@ export const TaskDetailDialog = ({
                 </>
               ) : (
                 <>
-                  <InboxIcon />
+                  <InboxIcon className='mr-2 size-4' />
                   Inbox
                 </>
               )}
@@ -129,8 +136,12 @@ export const TaskDetailDialog = ({
           </div>
         ) : (
           <Form {...form}>
-            <div className='grid grid-cols-3'>
-              <div className='col-span-2 min-h-[80vh]'>
+            <div
+              className={cn(isMobile ? 'flex flex-col' : 'grid grid-cols-3')}
+            >
+              <div
+                className={cn(isMobile ? 'order-1' : 'col-span-2 min-h-[80vh]')}
+              >
                 <TaskDetailMain
                   form={form}
                   task={task}
@@ -140,7 +151,7 @@ export const TaskDetailDialog = ({
                   isSaving={updateTask.isPending}
                 />
               </div>
-              <div className='col-span-1'>
+              <div className={cn(isMobile ? 'order-2 border-t' : 'col-span-1')}>
                 <TaskDetailSidebar form={form} />
               </div>
             </div>

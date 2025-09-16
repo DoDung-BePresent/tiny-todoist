@@ -95,7 +95,7 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
 
   return (
     <>
-      <div className='group/card flex items-start gap-3 p-2'>
+      <div className='group/card relative flex items-start gap-3 p-2'>
         <Avatar className='size-8'>
           <AvatarImage src={comment.user.avatar ?? ''} />
           <AvatarFallback>
@@ -116,7 +116,7 @@ export const CommentItem = ({ comment }: { comment: Comment }) => {
             {renderFileAttachment()}
           </p>
         </div>
-        <div className='flex items-center gap-1'>
+        <div className='absolute right-0 flex items-center gap-1'>
           <Button
             onClick={() => setShowCommentForm(true)}
             variant={'ghost'}
