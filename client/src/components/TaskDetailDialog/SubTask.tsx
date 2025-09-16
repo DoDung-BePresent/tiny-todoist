@@ -106,7 +106,7 @@ export const SubTask = ({
       )}
       {showTaskForm && (
         <div className='mt-2 flex items-start gap-1'>
-          <CornerDownRight className='text-muted-foreground ml-7 stroke-1' />
+          <CornerDownRight className='text-muted-foreground ml-2 stroke-1' />
           <TaskForm
             type='card'
             mode='create'

@@ -19,6 +19,13 @@ export const taskService = {
     return data;
   },
 
+  getTaskById: async (
+    taskId: string,
+  ): Promise<ApiResponse<{ task: Task }>> => {
+    const { data } = await api.get(`/tasks/${taskId}`);
+    return data;
+  },
+
   getTaskStats: async (): Promise<
     ApiResponse<{
       today: number;

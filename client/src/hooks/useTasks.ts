@@ -51,6 +51,19 @@ export const useTaskStatsQuery = () => {
   };
 };
 
+export const useTaskQuery = (taskId: string | null) => {
+  const query = useQuery({
+    queryKey: ['tasks', taskId],
+    queryFn: () => taskService.getTaskById(taskId!),
+    enabled: !!taskId,
+  });
+
+  return {
+    task: query.data?.data.task,
+    isLoading: query.isLoading,
+  };
+};
+
 export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
