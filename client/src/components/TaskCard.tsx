@@ -31,13 +31,17 @@ import type { Priority, Task } from '@/types/task';
 import { useTaskMutations } from '@/hooks/useTasks';
 
 /**
+ * Store
+ */
+import { useDialogStore } from '@/stores/dialog';
+
+/**
  * Components
  */
 import { Button } from '@/components/ui/button';
 import { TaskForm } from '@/components/TaskForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { TaskDetailDialog } from '@/components/TaskDetailDialog';
 
 type TaskCardClassNames = {
   checkButton?: string;
@@ -56,12 +60,12 @@ export const TaskCard = ({
   onCloseForm,
   onOpenForm,
 }: TaskCardProps) => {
+  const { setViewTask } = useDialogStore();
   const { id, title, description, completed, dueDate, priority, _count } = task;
 
   const { updateTask, deleteTask } = useTaskMutations();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showTaskDetail, setShowTaskDetail] = useState(false);
 
   const handleToggleComplete = () => {
     playSound('/complete-sound.mp3');
@@ -111,7 +115,9 @@ export const TaskCard = ({
           />
           <div
             className='w-[90%]'
-            onClick={() => setShowTaskDetail(true)}
+            onClick={() => {
+              setViewTask(id);
+            }}
           >
             <span
               className={cn(
@@ -185,11 +191,6 @@ export const TaskCard = ({
         onConfirm={handleDelete}
         className='top-[20%]'
         okLabel='Delete'
-      />
-      <TaskDetailDialog
-        open={showTaskDetail}
-        onOpenChange={setShowTaskDetail}
-        task={task}
       />
     </>
   );

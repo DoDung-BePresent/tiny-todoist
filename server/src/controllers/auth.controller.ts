@@ -1,4 +1,31 @@
+/**
+ * Node modules
+ */
 import { User } from '@prisma/client';
+
+/**
+ * Constants
+ */
+import { STATUS_CODE } from '@/constants/error.constant';
+
+/**
+ * Configs
+ */
+import config from '@/config/env.config';
+
+/**
+ * Middlewares
+ */
+import { asyncHandler } from '@/middlewares/error.middleware';
+
+/**
+ * Services
+ */
+import { authService } from '@/services/auth.service';
+
+/**
+ * Libs
+ */
 import prisma from '@/lib/prisma';
 import { UnauthorizedError } from '@/lib/error';
 import {
@@ -7,18 +34,11 @@ import {
   setTokenCookie,
   verifyToken,
 } from '@/lib/jwt';
-import { authService } from '@/services/auth.service';
-import { STATUS_CODE } from '@/constants/error.constant';
-import { loginSchema, registerSchema } from '@/validations/auth.validation';
-import config from '@/config/env.config';
-import { asyncHandler } from '@/middlewares/error.middleware';
 
 // TODO: Remove validations in this controller!
 export const authController = {
-  register: asyncHandler(async (req, res, next) => {
-    const { email, password } = registerSchema.parse(req.body);
-
-    const user = await authService.register({ email, password });
+  register: asyncHandler(async (req, res) => {
+    const user = await authService.register(req.body);
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
@@ -37,10 +57,8 @@ export const authController = {
       },
     });
   }),
-  login: asyncHandler(async (req, res, next) => {
-    const { email, password } = loginSchema.parse(req.body);
-
-    const user = await authService.login({ email, password });
+  login: asyncHandler(async (req, res) => {
+    const user = await authService.login(req.body);
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
@@ -59,13 +77,13 @@ export const authController = {
       },
     });
   }),
-  logout: asyncHandler(async (req, res, next) => {
+  logout: asyncHandler(async (_req, res) => {
     clearTokenCookie(res, 'refreshToken', '/api/v1/auth/refresh-token');
     res.status(STATUS_CODE.OK).json({
       message: 'Logged out successfully',
     });
   }),
-  githubCallback: asyncHandler(async (req, res, next) => {
+  githubCallback: asyncHandler(async (req, res) => {
     const user = req.user as User;
 
     const { accessToken, refreshToken } = generateTokens(user.id);
@@ -79,7 +97,7 @@ export const authController = {
 
     res.redirect(`${config.CLIENT_URL}/auth/callback?token=${accessToken}`);
   }),
-  refreshToken: asyncHandler(async (req, res, next) => {
+  refreshToken: asyncHandler(async (req, res) => {
     const refreshTokenFromCookie = req.cookies.refreshToken;
     if (!refreshTokenFromCookie) {
       throw new UnauthorizedError('Refresh token not found');

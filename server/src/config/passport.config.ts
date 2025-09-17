@@ -17,6 +17,11 @@ import config from '@/config/env.config';
 import logger from '@/lib/logger';
 import prisma from '@/lib/prisma';
 
+/**
+ * Services
+ */
+import { userService } from '@/services/user.service';
+
 passport.use(
   new GitHubStrategy(
     {
@@ -43,7 +48,6 @@ passport.use(
           );
         }
 
-        // 1. Find out if this GitHub account already exists in the DB
         const account = await prisma.account.findUnique({
           where: {
             provider_providerAccountId: {
@@ -61,15 +65,12 @@ passport.use(
           return done(null, account.user);
         }
 
-        // 2. If you don't have a GitHub account, check if the email already exists.
         const existingUser = await prisma.user.findUnique({
           where: {
             email: githubEmail,
           },
         });
 
-        // If the user already exists (e.g. registered with email/password)
-        // -> Link this GitHub account to that user
         if (existingUser) {
           await prisma.account.create({
             data: {
@@ -87,12 +88,24 @@ passport.use(
           return done(null, existingUser);
         }
 
-        // 3. If both user and account do not exist -> Create completely new
+        let avatarPath: string | undefined = undefined;
+        const githubAvatarUrl = profile.photos?.[0]?.value;
+        if (githubAvatarUrl) {
+          try {
+            avatarPath = await userService.downloadImageAndUploadToStorage(
+              githubAvatarUrl,
+              profile.id,
+            );
+          } catch (uploadError) {
+            logger.error('Failed to process GitHub avatar', uploadError);
+          }
+        }
+
         const newUser = await prisma.user.create({
           data: {
             email: githubEmail,
             name: profile.displayName || profile.username,
-            avatar: profile.photos?.[0]?.value,
+            avatar: avatarPath,
             accounts: {
               create: {
                 provider: Provider.github,

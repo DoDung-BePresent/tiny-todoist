@@ -8,6 +8,7 @@ import {
   HashIcon,
   PlusIcon,
 } from 'lucide-react';
+import { useEffect } from 'react';
 import { AddCircle } from 'iconsax-reactjs';
 import { Link, useLocation, useParams } from 'react-router';
 
@@ -19,6 +20,7 @@ import { SIDEBAR_LINKS } from '@/constants/sidebar';
 /**
  * Hooks
  */
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useTaskStatsQuery } from '@/hooks/useTasks';
 import { useProjectsQuery } from '@/hooks/useProject';
 
@@ -38,6 +40,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { HelpButton } from '@/components/HelpButton';
@@ -56,6 +59,14 @@ export const AppSidebar = () => {
   const { stats } = useTaskStatsQuery();
   const { projects } = useProjectsQuery();
   const { id } = useParams();
+  const isMobile = useIsMobile();
+  const { setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [location.pathname, isMobile, setOpenMobile]);
 
   const getCountForLink = (href: string) => {
     if (href.includes('today')) return stats?.today;
@@ -139,7 +150,10 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <Collapsible className='group/collapsible'>
+        <Collapsible
+          defaultOpen={true}
+          className='group/collapsible'
+        >
           <SidebarGroup className='gap-2'>
             <SidebarGroupLabel asChild>
               <div className='hover:bg-sidebar-accent group-data-[state=open]/collapsible:text-primary !h-8.5 !text-sm'>
@@ -177,7 +191,9 @@ export const AppSidebar = () => {
                             strokeWidth={1.5}
                             color={project.color}
                           />
-                          <span className='flex-1'>{project.name}</span>
+                          <span className='flex-1 truncate'>
+                            {project.name}
+                          </span>
                           <ProjectDropdownMenu project={project}>
                             <Button
                               variant='ghost'

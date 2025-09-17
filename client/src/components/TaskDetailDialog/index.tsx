@@ -2,20 +2,22 @@
  * Node modules
  */
 import z from 'zod';
+import { useEffect } from 'react';
 import { EllipsisIcon, HashIcon, InboxIcon, XIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 /**
- * Types
- */
-import type { Task } from '@/types/task';
-
-/**
  * Hooks
  */
-import { useTaskMutations } from '@/hooks/useTasks';
+import { useTaskMutations, useTaskQuery } from '@/hooks/useTasks';
 import { useProjectsQuery } from '@/hooks/useProject';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+/**
+ * Libs
+ */
+import { cn } from '@/lib/utils';
 
 /**
  * Components
@@ -31,11 +33,12 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { TaskDetailSidebar } from './TaskDetailSidebar';
 import { TaskDetailMain } from './TaskDetailMain';
+import { LoadingSpinner } from '../LoadingSpinner';
 
 type TaskDetailDialogProps = {
-  open: boolean;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  task: Task;
+  taskId: string;
 };
 
 const formSchema = z.object({
@@ -47,50 +50,50 @@ const formSchema = z.object({
 });
 
 export const TaskDetailDialog = ({
-  open,
+  isOpen,
   onOpenChange,
-  task,
+  taskId,
 }: TaskDetailDialogProps) => {
+  const { task, isLoading } = useTaskQuery(taskId);
   const { projects } = useProjectsQuery();
   const { updateTask } = useTaskMutations();
+  const isMobile = useIsMobile();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: task.title,
-      description: task.description ?? '',
-      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-      priority: task.priority,
-      projectId: task.projectId,
-    },
   });
 
+  useEffect(() => {
+    if (task) {
+      form.reset({
+        title: task.title,
+        description: task.description ?? '',
+        dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+        priority: task.priority,
+        projectId: task.projectId,
+      });
+    }
+  }, [task, form]);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateTask.mutate(
-      {
-        taskId: task.id,
-        payload: values,
-      },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
-      },
-    );
+    if (!task) return;
+    updateTask.mutate({ taskId: task.id, payload: values });
   };
 
-  // TODO: Can nhac xem co the dung hook cua project de lay project khong! Output: Project | null
-  const currentProject = projects?.find((p) => p.id === task.projectId);
+  const currentProject = projects?.find((p) => p.id === task?.projectId);
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onOpenChange={onOpenChange}
     >
       <DialogOverlay className='bg-black/50' />
       <DialogContent
         showCloseButton={false}
-        className='!max-w-4xl gap-0 p-0'
+        className={cn(
+          '!max-w-4xl gap-0 p-0',
+          isMobile && 'h-fit max-h-screen w-full',
+        )}
       >
         <DialogHeader className='mb-0 border-b p-2'>
           <div className='flex w-full items-center justify-between'>
@@ -109,7 +112,7 @@ export const TaskDetailDialog = ({
                 </>
               ) : (
                 <>
-                  <InboxIcon />
+                  <InboxIcon className='mr-2 size-4' />
                   Inbox
                 </>
               )}
@@ -127,23 +130,33 @@ export const TaskDetailDialog = ({
             </div>
           </div>
         </DialogHeader>
-
-        <Form {...form}>
-          <div className='grid grid-cols-3'>
-            <div className='col-span-2 min-h-[80vh]'>
-              <TaskDetailMain
-                form={form}
-                task={task}
-                onOpenChange={onOpenChange}
-                currentProject={currentProject}
-                onSubmit={onSubmit}
-              />
-            </div>
-            <div className='col-span-1'>
-              <TaskDetailSidebar form={form} />
-            </div>
+        {isLoading || !task ? (
+          <div className='flex h-[80vh] items-center justify-center'>
+            <LoadingSpinner />
           </div>
-        </Form>
+        ) : (
+          <Form {...form}>
+            <div
+              className={cn(isMobile ? 'flex flex-col' : 'grid grid-cols-3')}
+            >
+              <div
+                className={cn(isMobile ? 'order-1' : 'col-span-2 min-h-[80vh]')}
+              >
+                <TaskDetailMain
+                  form={form}
+                  task={task}
+                  onOpenChange={onOpenChange}
+                  currentProject={currentProject}
+                  onSubmit={onSubmit}
+                  isSaving={updateTask.isPending}
+                />
+              </div>
+              <div className={cn(isMobile ? 'order-2 border-t' : 'col-span-1')}>
+                <TaskDetailSidebar form={form} />
+              </div>
+            </div>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -91,7 +91,7 @@ export const SubTask = ({
         </Accordion>
       )}
       {!showTaskForm && task.subtasks && task.subtasks?.length === 0 && (
-        <div className='mt-2 ml-6'>
+        <div className='mt-2'>
           <Button
             size='sm'
             variant='ghost'
@@ -106,7 +106,7 @@ export const SubTask = ({
       )}
       {showTaskForm && (
         <div className='mt-2 flex items-start gap-1'>
-          <CornerDownRight className='text-muted-foreground ml-7 stroke-1' />
+          <CornerDownRight className='text-muted-foreground ml-2 stroke-1' />
           <TaskForm
             type='card'
             mode='create'

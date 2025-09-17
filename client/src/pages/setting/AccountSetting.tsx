@@ -33,6 +33,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { PageHelmet } from '@/components/PageHelmet';
 
 const profileSchema = z.object({
   name: z.string().trim().min(1, 'Name cannot be empty.'),
@@ -110,228 +111,228 @@ const AccountSettings = () => {
   const { bg, border } = getAvatarColor(avatarChar);
 
   return (
-    <div className='space-y-6'>
-      {/* Photo Section */}
-      <div>
-        <h3 className='text-lg font-semibold'>Photo</h3>
-        <div className='mt-4 flex items-center gap-6'>
-          <Avatar
-            className='size-16'
-            style={{ background: bg, border: `2px solid ${border}` }}
-          >
-            <AvatarImage
-              src={avatarSrc ?? undefined}
-              className='object-center'
-            />
-            <AvatarFallback
-              className='text-2xl'
-              style={{ background: bg, borderColor: border, color: border }}
+    <>
+      <PageHelmet title='My Account' />
+      <div className='space-y-6'>
+        <div>
+          <h3 className='text-lg font-semibold'>Photo</h3>
+          <div className='mt-4 flex items-center gap-6'>
+            <Avatar
+              className='size-16'
+              style={{ background: bg, border: `2px solid ${border}` }}
             >
-              {avatarChar}
-            </AvatarFallback>
-          </Avatar>
-          <div className='flex items-center gap-2'>
-            <input
-              type='file'
-              accept='image/*'
-              ref={avatarInputRef}
-              onChange={handleAvatarChange}
-              className='hidden'
-            />
-            <Button
-              type='button'
-              variant='secondary'
-              className='rounded-sm'
-              size='sm'
-              onClick={() => avatarInputRef.current?.click()}
-            >
-              Change photo
-            </Button>
-            <Button
-              variant='outline'
-              type='button'
-              size='sm'
-              onClick={handleRemoveAvatar}
-              disabled={!user?.avatar}
-              className='border-destructive text-destructive rounded-sm'
-            >
-              Remove photo
-            </Button>
+              <AvatarImage
+                src={avatarSrc ?? undefined}
+                className='object-center'
+              />
+              <AvatarFallback
+                className='text-2xl'
+                style={{ background: bg, borderColor: border, color: border }}
+              >
+                {avatarChar}
+              </AvatarFallback>
+            </Avatar>
+            <div className='flex items-center gap-2'>
+              <input
+                type='file'
+                accept='image/*'
+                ref={avatarInputRef}
+                onChange={handleAvatarChange}
+                className='hidden'
+              />
+              <Button
+                type='button'
+                variant='secondary'
+                className='rounded-sm'
+                size='sm'
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                Change photo
+              </Button>
+              <Button
+                variant='outline'
+                type='button'
+                size='sm'
+                onClick={handleRemoveAvatar}
+                disabled={!user?.avatar}
+                className='border-destructive text-destructive rounded-sm'
+              >
+                Remove photo
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Name Section */}
-      <Form {...profileForm}>
-        <form
-          onSubmit={profileForm.handleSubmit(onProfileSubmit)}
-          className='space-y-4'
-        >
-          <FormField
-            control={profileForm.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    className='w-2/5 rounded-sm'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+        <Form {...profileForm}>
+          <form
+            onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+            className='space-y-4'
+          >
+            <FormField
+              control={profileForm.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className='w-2/5 rounded-sm'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {profileForm.formState.isDirty && (
+              <Button
+                type='submit'
+                size='sm'
+                disabled={
+                  !profileForm.formState.isDirty ||
+                  !profileForm.formState.isValid ||
+                  updateProfile.isPending
+                }
+                className='rounded-sm'
+              >
+                {updateProfile.isPending ? 'Saving...' : 'Save Name'}
+              </Button>
             )}
-          />
-          {profileForm.formState.isDirty && (
+          </form>
+        </Form>
+
+        <Separator />
+
+        <Form {...passwordForm}>
+          <form
+            onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+            className='space-y-4'
+          >
+            <div>
+              <h3 className='text-lg font-semibold'>Password</h3>
+              <p className='text-muted-foreground text-sm'>
+                Update your password here.
+              </p>
+            </div>
+            <FormField
+              control={passwordForm.control}
+              name='currentPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <div className='relative w-2/5'>
+                      <Input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        {...field}
+                        placeholder='••••••••••••'
+                        className='rounded-sm'
+                      />
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        className='absolute top-0 right-0.5 h-full hover:bg-transparent'
+                        onClick={() =>
+                          setShowCurrentPassword(!showCurrentPassword)
+                        }
+                      >
+                        {showCurrentPassword ? (
+                          <Eye className='text-muted-foreground' />
+                        ) : (
+                          <EyeOff className='text-muted-foreground' />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={passwordForm.control}
+              name='newPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <div className='relative w-2/5'>
+                      <Input
+                        type={showNewPassword ? 'text' : 'password'}
+                        className='rounded-sm'
+                        placeholder='••••••••••••'
+                        {...field}
+                      />
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        className='absolute top-0 right-0.5 h-full hover:bg-transparent'
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? (
+                          <Eye className='text-muted-foreground' />
+                        ) : (
+                          <EyeOff className='text-muted-foreground' />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={passwordForm.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormControl>
+                    <div className='relative w-2/5'>
+                      <Input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        className='rounded-sm'
+                        placeholder='••••••••••••'
+                        {...field}
+                      />
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        className='absolute top-0 right-0.5 h-full hover:bg-transparent'
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? (
+                          <Eye className='text-muted-foreground' />
+                        ) : (
+                          <EyeOff className='text-muted-foreground' />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button
               type='submit'
-              size='sm'
               disabled={
-                !profileForm.formState.isDirty ||
-                !profileForm.formState.isValid ||
-                updateProfile.isPending
+                updatePassword.isPending ||
+                !passwordForm.formState.isValid ||
+                !passwordForm.formState.isDirty
               }
+              size='sm'
               className='rounded-sm'
             >
-              {updateProfile.isPending ? 'Saving...' : 'Save Name'}
+              {updatePassword.isPending ? 'Saving...' : 'Change Password'}
             </Button>
-          )}
-        </form>
-      </Form>
-
-      <Separator />
-
-      {/* Password Section */}
-      <Form {...passwordForm}>
-        <form
-          onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
-          className='space-y-4'
-        >
-          <div>
-            <h3 className='text-lg font-semibold'>Password</h3>
-            <p className='text-muted-foreground text-sm'>
-              Update your password here.
-            </p>
-          </div>
-          <FormField
-            control={passwordForm.control}
-            name='currentPassword'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Current Password</FormLabel>
-                <FormControl>
-                  <div className='relative w-2/5'>
-                    <Input
-                      type={showCurrentPassword ? 'text' : 'password'}
-                      {...field}
-                      placeholder='••••••••••••'
-                      className='rounded-sm'
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      className='absolute top-0 right-0.5 h-full hover:bg-transparent'
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                    >
-                      {showCurrentPassword ? (
-                        <Eye className='text-muted-foreground' />
-                      ) : (
-                        <EyeOff className='text-muted-foreground' />
-                      )}
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={passwordForm.control}
-            name='newPassword'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>New Password</FormLabel>
-                <FormControl>
-                  <div className='relative w-2/5'>
-                    <Input
-                      type={showNewPassword ? 'text' : 'password'}
-                      className='rounded-sm'
-                      placeholder='••••••••••••'
-                      {...field}
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      className='absolute top-0 right-0.5 h-full hover:bg-transparent'
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                    >
-                      {showNewPassword ? (
-                        <Eye className='text-muted-foreground' />
-                      ) : (
-                        <EyeOff className='text-muted-foreground' />
-                      )}
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={passwordForm.control}
-            name='confirmPassword'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm New Password</FormLabel>
-                <FormControl>
-                  <div className='relative w-2/5'>
-                    <Input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      className='rounded-sm'
-                      placeholder='••••••••••••'
-                      {...field}
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      className='absolute top-0 right-0.5 h-full hover:bg-transparent'
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    >
-                      {showConfirmPassword ? (
-                        <Eye className='text-muted-foreground' />
-                      ) : (
-                        <EyeOff className='text-muted-foreground' />
-                      )}
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            type='submit'
-            disabled={
-              updatePassword.isPending ||
-              !passwordForm.formState.isValid ||
-              !passwordForm.formState.isDirty
-            }
-            size='sm'
-            className='rounded-sm'
-          >
-            {updatePassword.isPending ? 'Saving...' : 'Change Password'}
-          </Button>
-        </form>
-      </Form>
-    </div>
+          </form>
+        </Form>
+      </div>
+    </>
   );
 };
 

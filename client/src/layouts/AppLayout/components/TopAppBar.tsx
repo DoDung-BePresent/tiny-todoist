@@ -1,4 +1,12 @@
+/**
+ * Node modules
+ */
 import { Columns3Icon } from 'lucide-react';
+
+/**
+ * Hooks
+ */
+import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
  * Components
@@ -8,10 +16,11 @@ import { Button } from '@/components/ui/button';
 
 export const TopAppBar = () => {
   const { state } = useSidebar();
+  const isMobile = useIsMobile();
   return (
     <div className='flex items-center'>
       <div className='flex-1'>
-        {state === 'collapsed' && <SidebarTrigger />}
+        {(state === 'collapsed' || isMobile) && <SidebarTrigger />}
       </div>
       <Button
         variant='ghost'

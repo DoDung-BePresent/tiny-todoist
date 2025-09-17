@@ -137,6 +137,17 @@ model Reaction {
   @@map("reactions")
 }
 
+model EmailVerificationToken {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  email        String   
+  passwordHash String   
+  name         String? 
+  expiresAt    DateTime 
+
+  createdAt DateTime @default(now())
+}
+
 enum AccountType {
   oauth
   credentials

@@ -1,5 +1,16 @@
+/**
+ * Constants
+ */
 import { STATUS_CODE } from '@/constants/error.constant';
+
+/**
+ * Middlewares
+ */
 import { asyncHandler } from '@/middlewares/error.middleware';
+
+/**
+ * Services
+ */
 import { projectService } from '@/services/project.service';
 
 export const projectController = {
