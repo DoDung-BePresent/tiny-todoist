@@ -19,11 +19,6 @@ import config from '@/config/env.config';
 import { asyncHandler } from '@/middlewares/error.middleware';
 
 /**
- * Validations
- */
-import { loginSchema, registerSchema } from '@/validations/auth.validation';
-
-/**
  * Services
  */
 import { authService } from '@/services/auth.service';
@@ -43,9 +38,7 @@ import {
 // TODO: Remove validations in this controller!
 export const authController = {
   register: asyncHandler(async (req, res) => {
-    const { email, password } = registerSchema.parse(req.body);
-
-    const user = await authService.register({ email, password });
+    const user = await authService.register(req.body);
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
@@ -65,9 +58,7 @@ export const authController = {
     });
   }),
   login: asyncHandler(async (req, res) => {
-    const { email, password } = loginSchema.parse(req.body);
-
-    const user = await authService.login({ email, password });
+    const user = await authService.login(req.body);
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
@@ -92,7 +83,7 @@ export const authController = {
       message: 'Logged out successfully',
     });
   }),
-  githubCallback: asyncHandler(async (req, res, next) => {
+  githubCallback: asyncHandler(async (req, res) => {
     const user = req.user as User;
 
     const { accessToken, refreshToken } = generateTokens(user.id);

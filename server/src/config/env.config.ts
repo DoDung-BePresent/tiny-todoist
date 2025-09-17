@@ -43,6 +43,13 @@ const config = {
   SUPABASE_BUCKET_NAME: process.env.SUPABASE_BUCKET_NAME!,
   SUPABASE_AVATAR_BUCKET_NAME: process.env.SUPABASE_AVATAR_BUCKET_NAME!,
   SIGNED_URL_EXPIRY: process.env.SIGNED_URL_EXPIRY as ms.StringValue,
+
+  // EMAIL
+  EMAIL_HOST: process.env.EMAIL_HOST,
+  EMAIL_PORT: Number(process.env.EMAIL_PORT),
+  EMAIL_USER: process.env.EMAIL_USER,
+  EMAIL_PASS: process.env.EMAIL_PASS,
+  EMAIL_FROM: process.env.EMAIL_FROM,
 };
 
 export default config;
