@@ -1,9 +1,4 @@
 /**
- * Node modules
- */
-import ms from 'ms';
-
-/**
  * Configs
  */
 import config from '@/config/env.config';
@@ -21,7 +16,6 @@ import { asyncHandler } from '@/middlewares/error.middleware';
 /**
  * Libs
  */
-import { logger } from '@/lib/logger';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -34,19 +28,10 @@ export const userController = {
     const user = req.user!;
 
     if (user.avatar) {
-      const { data, error } = await supabase.storage
+      const { data } = supabase.storage
         .from(config.SUPABASE_AVATAR_BUCKET_NAME)
-        .createSignedUrl(user.avatar, ms(config.SIGNED_URL_EXPIRY) / 1000);
-
-      if (error) {
-        logger.error('Error creating signed URL for avatar', {
-          error,
-          userId: user.id,
-        });
-        user.avatar = null;
-      } else {
-        user.avatar = data.signedUrl;
-      }
+        .getPublicUrl(user.avatar);
+      user.avatar = data.publicUrl;
     }
 
     res.status(STATUS_CODE.OK).json({
@@ -67,6 +52,13 @@ export const userController = {
       payload,
       avatarFile,
     );
+
+    if (updatedUser.avatar) {
+      const { data } = supabase.storage
+        .from(config.SUPABASE_AVATAR_BUCKET_NAME)
+        .getPublicUrl(updatedUser.avatar);
+      updatedUser.avatar = data.publicUrl;
+    }
 
     res.status(STATUS_CODE.OK).json({
       message: 'Profile updated successfully!',

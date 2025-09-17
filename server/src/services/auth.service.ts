@@ -11,6 +11,11 @@ import { BadRequestError, ConflictError } from '@/lib/error';
 import { ERROR_CODE_ENUM } from '@/constants/error.constant';
 
 /**
+ * Services
+ */
+import { seedService } from '@/services/seed.service';
+
+/**
  * Types
  */
 type CredentialPayload = { email: string; password: string };
@@ -53,6 +58,9 @@ export const authService = {
         updatedAt: true,
       },
     });
+
+    seedService.seedInitialDataForUser(user.id);
+
     return user;
   },
   login: async ({ email, password }: CredentialPayload) => {
@@ -77,6 +85,7 @@ export const authService = {
     if (!credentialsAccount || !credentialsAccount.password) {
       throw new BadRequestError(
         'This account was created using a different method. Please log in with your social account',
+        ERROR_CODE_ENUM.ACCOUNT_EXISTS_WITH_DIFFERENT_PROVIDER,
       );
     }
 

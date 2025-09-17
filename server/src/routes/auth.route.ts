@@ -13,11 +13,17 @@ import { authController } from '@/controllers/auth.controller';
  * Middlewares
  */
 import { authenticate } from '@/middlewares/auth.middleware';
+import { validate } from '@/middlewares/validate.middleware';
+import { authValidation } from '@/validations/auth.validation';
 
 const authRouter = Router();
 
-authRouter.post('/login', authController.login);
-authRouter.post('/register', authController.register);
+authRouter.post('/login', validate(authValidation.login), authController.login);
+authRouter.post(
+  '/register',
+  validate(authValidation.register),
+  authController.register,
+);
 authRouter.post('/refresh-token', authController.refreshToken);
 authRouter.post('/logout', authenticate, authController.logout);
 authRouter.get(

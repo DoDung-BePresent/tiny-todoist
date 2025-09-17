@@ -4,13 +4,20 @@
 import { Outlet } from 'react-router';
 
 /**
+ * Stores
+ */
+import { useDialogStore } from '@/stores/dialog';
+
+/**
  * Components
  */
+import { TopAppBar } from './components/TopAppBar';
 import { AppSidebar } from './components/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { TopAppBar } from './components/TopAppBar';
+import { TaskDetailDialog } from '@/components/TaskDetailDialog';
 
 const AppLayout = () => {
+  const { viewingTaskId, setViewTask } = useDialogStore();
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -18,6 +25,17 @@ const AppLayout = () => {
         <TopAppBar />
         <Outlet />
       </main>
+      {viewingTaskId && (
+        <TaskDetailDialog
+          taskId={viewingTaskId}
+          isOpen={!!viewingTaskId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setViewTask(null);
+            }
+          }}
+        />
+      )}
     </SidebarProvider>
   );
 };
