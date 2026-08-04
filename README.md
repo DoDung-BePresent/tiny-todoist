@@ -1,37 +1,98 @@
 # Tiny Todoist
 
-A full-stack task management application inspired by Todoist, built with a modern tech stack including React, Node.js, PostgreSQL, and TypeScript. This project aims to replicate the core functionalities and clean user experience of Todoist for educational purposes.
+Tiny Todoist is a full-stack task-management application inspired by Todoist. It provides a focused workspace for planning tasks, organizing them into projects, setting priorities and due dates, and tracking work from Inbox through completion.
 
-**Live Demo:** [https://tiny-todoist.vercel.app/](https://tiny-todoist.vercel.app/)
+> This is an independent educational project and is not affiliated with Todoist.
 
-## ✨ Features
+**Live demo:** [tiny-todoist.vercel.app](https://tiny-todoist.vercel.app/)
 
-- **Authentication**: Secure user sign-up and login with email/password and GitHub OAuth.
-- **Email Verification**: Magic link email verification for new user sign-ups.
-- **Task Management**: Full CRUD operations for tasks, including titles, descriptions, priorities, and due dates.
-- **Project Organization**: Create, update, and delete projects to categorize tasks.
-- **Hierarchical Tasks**: Support for nested subtasks.
-- **Task Views**: Filter tasks by Inbox, Today, Upcoming, and specific projects.
-- **Comments & Attachments**: Add comments and upload file attachments to tasks.
-- **Profile Management**: Users can update their name and avatar.
-- **Responsive UI**: Clean and modern interface that works seamlessly on desktop and mobile devices.
+## Preview
 
-## 🛠️ Tech Stack
+<p align="center">
+  <img src="docs/screenshots/landing-page.png" alt="Tiny Todoist landing page" width="900" />
+</p>
 
-| Category         | Technology                                                                                                                     |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Frontend**     | [React](https://react.dev/), [Vite](https://vitejs.dev/), [TypeScript](https://www.typescriptlang.org/)                        |
-| **Backend**      | [Node.js](https://nodejs.org/), [Express](https://expressjs.com/), [TypeScript](https://www.typescriptlang.org/)               |
-| **Database**     | [PostgreSQL](https://www.postgresql.org/), [Prisma](https://www.prisma.io/)                                                    |
-| **Styling**      | [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/), [Framer Motion](https://www.framer.com/motion/) |
-| **State Mgt**    | [TanStack Query](https://tanstack.com/query/latest), [Zustand](https://zustand-demo.pmnd.rs/)                                  |
-| **Auth**         | [Passport.js](http://www.passportjs.org/) (GitHub, JWT), [bcryptjs](https://www.npmjs.com/package/bcryptjs)                    |
-| **File Storage** | [Supabase Storage](https://supabase.com/storage)                                                                               |
-| **Validation**   | [Zod](https://zod.dev/)                                                                                                        |
+<p align="center">
+  <img src="docs/screenshots/inbox.png" alt="Inbox task list" width="900" />
+</p>
 
-## 🚀 Getting Started
+<p align="center">
+  <img src="docs/screenshots/task-priority.png" alt="Task editor with priority selection" width="900" />
+</p>
 
-To clone and run this project locally, you will need [Node.js](https://nodejs.org/en) (v18+), [npm](https://www.npmjs.com/), and [Docker](https://www.docker.com/) (to run PostgreSQL) installed on your machine.
+<p align="center">
+  <img src="docs/screenshots/create-task.png" alt="Create task dialog" width="900" />
+</p>
+
+## Features
+
+- Email/password authentication and GitHub OAuth sign-in.
+- Email verification for new accounts.
+- Create, edit, complete, and delete tasks.
+- Add descriptions, priorities, due dates, comments, and file attachments.
+- Organize tasks in projects and create nested subtasks.
+- Browse dedicated Inbox, Today, Upcoming, Completed, and project views.
+- Manage the user profile, including display name and avatar.
+- Responsive interface for desktop and mobile use.
+
+## Technology
+
+| Area | Technologies |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, React Router |
+| UI and styling | Tailwind CSS, Radix UI, shadcn/ui, Framer Motion, Lucide |
+| Client data | TanStack Query, Zustand, Axios, React Hook Form, Zod |
+| Backend | Node.js, Express 5, TypeScript |
+| Database | PostgreSQL, Prisma ORM |
+| Authentication | JWT, Passport, GitHub OAuth, bcryptjs |
+| Storage and email | Supabase Storage, Multer, Nodemailer |
+| Operational tooling | Helmet, CORS, express-rate-limit, Winston |
+
+## Project Structure
+
+```text
+tiny-todoist/
+├── client/                         # React single-page application
+│   ├── public/                     # Static assets
+│   └── src/
+│       ├── assets/                 # Images and visual assets
+│       ├── components/             # Reusable UI and feature components
+│       │   ├── ui/                 # Base UI primitives
+│       │   ├── SettingsDialog/     # Account settings UI
+│       │   └── TaskDetailDialog/   # Task details, comments, and subtasks
+│       ├── hooks/                  # Query and UI hooks
+│       ├── layouts/                # Authentication and application layouts
+│       ├── pages/                  # Route-level views
+│       ├── routes/                 # Routing and access guards
+│       ├── services/               # API client functions
+│       ├── stores/                 # Zustand state stores
+│       ├── types/                  # Shared TypeScript types
+│       └── utils/                  # Client-side helpers
+├── server/                         # Express API
+│   ├── prisma/                     # Prisma schema and migrations
+│   └── src/
+│       ├── config/                 # Environment and Passport setup
+│       ├── controllers/            # HTTP request handlers
+│       ├── middlewares/            # Authentication, validation, upload, errors
+│       ├── routes/                 # API route definitions
+│       ├── services/               # Business logic and data operations
+│       ├── validations/            # Zod request schemas
+│       ├── lib/                    # Prisma, Supabase, JWT, logging utilities
+│       └── seeds/                  # Sample data
+├── docs/screenshots/               # README screenshots
+├── LICENSE
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or later
+- npm
+- PostgreSQL (or Docker to run PostgreSQL locally)
+- A Supabase project for file storage (optional for development without uploads)
+- GitHub OAuth credentials (optional if GitHub sign-in is not required)
 
 ### 1. Clone the repository
 
@@ -40,93 +101,65 @@ git clone https://github.com/your-username/tiny-todoist.git
 cd tiny-todoist
 ```
 
-### 2. Setup Backend
+### 2. Configure and run the API
 
 ```bash
-# Navigate to the server directory
 cd server
-
-# Install dependencies
 npm install
-
-# Create a .env file from the example
 cp .env.example .env
 ```
 
-Next, you need to start a PostgreSQL database instance. The easiest way is using Docker:
+Start PostgreSQL locally, for example with Docker:
 
 ```bash
 docker run --name tiny-todoist-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
 ```
 
-Then, update the environment variables in `server/.env` with your database credentials, Supabase keys, GitHub OAuth details, and other secrets.
-
-```env
-# server/.env
-
-# Database
-DATABASE_URL="postgresql://postgres:mysecretpassword@localhost:5432/tiny_todoist?schema=public"
-DIRECT_URL="postgresql://postgres:mysecretpassword@localhost:5432/tiny_todoist?schema=public"
-
-# Supabase (for file storage)
-SUPABASE_URL=...
-SUPABASE_SERVICE_KEY=...
-SUPABASE_BUCKET_NAME=...
-SUPABASE_AVATAR_BUCKET_NAME=...
-
-# GitHub OAuth
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
-
-# JWT
-JWT_ACCESS_SECRET=your_jwt_access_secret
-JWT_REFRESH_SECRET=your_jwt_refresh_secret
-```
-
-Finally, apply the database migrations and start the server:
+Update `server/.env` with the required database, JWT, email, Supabase, and OAuth settings. Then apply migrations and start the API:
 
 ```bash
-# Apply database schema
 npx prisma migrate dev
-
-# Run the development server
 npm run dev
 ```
 
-The server will be running at `http://localhost:3000`.
+The API runs at `http://localhost:3000` by default.
 
-### 3. Setup Frontend
+### 3. Configure and run the client
+
+Open another terminal from the project root:
 
 ```bash
-# Navigate to the client directory from the root
 cd client
-
-# Install dependencies
 npm install
-
-# Create a .env file
 cp .env.example .env
 ```
 
-Update the `client/.env` file to point to the server's API URL:
+Set the API endpoint in `client/.env`:
 
 ```env
-# client/.env
 VITE_API_BASE_URL=http://localhost:3000/api/v1
 ```
 
-Start the client development server:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-The client will be running at `http://localhost:5173`.
+Open `http://localhost:5173` in your browser.
 
-## 📄 License
+## Available Scripts
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+| Directory | Command | Description |
+| --- | --- | --- |
+| `client` | `npm run dev` | Start the Vite development server. |
+| `client` | `npm run build` | Type-check and create a production build. |
+| `client` | `npm run lint` | Run ESLint. |
+| `server` | `npm run dev` | Start the API with automatic reload. |
+| `server` | `npm run build` | Compile TypeScript for production. |
+| `server` | `npm start` | Run the compiled server. |
+| `server` | `npm run lint` | Run ESLint on TypeScript files. |
 
----
+## License
 
-**Disclaimer:** This project is for educational purposes only and is not affiliated with Todoist. All brand assets of Todoist are the property of their respective owners.
+This project is licensed under the [MIT License](LICENSE).
